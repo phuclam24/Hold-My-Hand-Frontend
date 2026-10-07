@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { profileApi } from '@/api'
-import { Card } from '@/components/ui'
 import { useAuthStore } from '@/stores'
 import {
   Gamepad2,

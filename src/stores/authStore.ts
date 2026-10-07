@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { User, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse } from '@/types'
+import type { User, LoginRequest, LoginResponse, RegisterRequest } from '@/types'
 import { authApi } from '@/api'
 
 interface AuthState {
@@ -63,7 +63,7 @@ export const useAuthStore = create<AuthState>()(
       register: async (data: RegisterRequest) => {
         set({ isLoading: true, error: null })
         try {
-          const response: RegisterResponse = await authApi.register(data)
+          await authApi.register(data)
           set({ isLoading: false })
         } catch (error: any) {
           const message = error.response?.data?.message || error.response?.data || 'Đăng ký thất bại'

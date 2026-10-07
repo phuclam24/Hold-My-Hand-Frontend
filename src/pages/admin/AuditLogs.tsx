@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { accountsApi } from '@/api'
 import { Card } from '@/components/ui'
-import { Activity, Search, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { ModActionLog } from '@/types'
 
 export default function AuditLogs() {

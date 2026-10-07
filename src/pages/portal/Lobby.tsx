@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { Card } from '@/components/ui'
 import { useNotificationStore } from '@/stores'
 import { Gamepad2, Plus, Hash, Users, ArrowLeftRight, Play } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
-
 export default function PortalLobby() {
-  const navigate = useNavigate()
   const [joinCode, setJoinCode] = useState('')
   const { addNotification } = useNotificationStore()
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { charactersApi } from '@/api'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { Card } from '@/components/ui'
 import { Gamepad2 } from 'lucide-react'
 import type { Character } from '@/types'
 

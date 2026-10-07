@@ -1,88 +1,96 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import React, { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores'
-import { useNotificationStore } from '@/stores'
 import { notify } from '@/lib/toast'
-import {
-  registerGoogleAuth,
-  renderGoogleButton,
-  showOneTap,
-  cancelOneTap,
-  completeGoogleLogin,
-} from '@/lib/googleAuth'
-import { Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react'
+import { ArrowLeft, X, Heart } from 'lucide-react'
 
 export default function Login() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { login, isLoading, error, clearError } = useAuthStore()
-  const { addNotification } = useNotificationStore()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [emailFocused, setEmailFocused] = useState(false)
-  const [passwordFocused, setPasswordFocused] = useState(false)
+  const [showDemoMenu, setShowDemoMenu] = useState(false)
 
-  // Ref cho container chứa nút Google Sign-In chính hãng.
-  const googleBtnRef = useRef<HTMLDivElement | null>(null)
-  const [googleError, setGoogleError] = useState<string | null>(null)
+  // Floating Particles Canvas Ref
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
-  // Hiển thị thông báo nếu vừa đăng ký
+  // Animated Floating Ember Particles
   useEffect(() => {
-    if (location.state?.registered) {
-      notify.success('Đăng ký thành công! Hãy đăng nhập để tiếp tục.', 'Chào mừng')
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    let animationFrameId: number
+    let width = (canvas.width = window.innerWidth)
+    let height = (canvas.height = window.innerHeight)
+
+    const handleResize = () => {
+      if (!canvas) return
+      width = canvas.width = window.innerWidth
+      height = canvas.height = window.innerHeight
     }
-  }, [location.state])
+    window.addEventListener('resize', handleResize)
 
-  // Mount: đăng ký GIS + render nút + bật One Tap.
-  useEffect(() => {
-    let cancelled = false
+    // Particle pool
+    const numParticles = 45
+    const particles: Array<{
+      x: number
+      y: number
+      size: number
+      speedY: number
+      speedX: number
+      opacity: number
+      pulseSpeed: number
+    }> = []
 
-    const setup = async () => {
-      try {
-        // Đăng ký callback nhận idToken từ Google.
-        await registerGoogleAuth(async (idToken) => {
-          try {
-            await completeGoogleLogin(idToken, navigate)
-          } catch (err: any) {
-            notify.error(
-              err.response?.data?.message || 'Google login thất bại',
-              'Lỗi',
-            )
-          }
-        })
-
-        if (cancelled) return
-
-        // Render nút "Continue with Google" chuẩn vào container.
-        if (googleBtnRef.current) {
-          await renderGoogleButton(googleBtnRef.current, {
-            width: googleBtnRef.current.clientWidth || 320,
-            theme: 'outline',
-            size: 'large',
-            text: 'continue_with',
-            shape: 'rectangular',
-          })
-        }
-
-        if (cancelled) return
-
-        // Bật One Tap — Google sẽ tự trượt bảng chọn tài khoản ở góc trên phải.
-        await showOneTap()
-      } catch (err: any) {
-        // Thiếu VITE_GOOGLE_CLIENT_ID hoặc domain chưa đăng ký → vẫn cho đăng nhập thường.
-        if (!cancelled) {
-          setGoogleError(err?.message || 'Google Sign-In chưa sẵn sàng.')
-        }
-      }
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: Math.random() * 2.5 + 1,
+        speedY: Math.random() * 0.6 + 0.2,
+        speedX: (Math.random() - 0.5) * 0.4,
+        opacity: Math.random() * 0.7 + 0.3,
+        pulseSpeed: Math.random() * 0.02 + 0.005,
+      })
     }
 
-    setup()
+    const render = () => {
+      ctx.clearRect(0, 0, width, height)
+
+      particles.forEach((p) => {
+        p.y -= p.speedY
+        p.x += p.speedX
+        p.opacity += Math.sin(Date.now() * p.pulseSpeed) * 0.01
+
+        if (p.y < -10) {
+          p.y = height + 10
+          p.x = Math.random() * width
+        }
+        if (p.x < 0) p.x = width
+        if (p.x > width) p.x = 0
+
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(245, 158, 11, ${Math.max(0.1, Math.min(0.9, p.opacity))})`
+        ctx.shadowBlur = 8
+        ctx.shadowColor = '#f59e0b'
+        ctx.fill()
+      })
+
+      animationFrameId = requestAnimationFrame(render)
+    }
+
+    render()
+
     return () => {
-      cancelled = true
-      cancelOneTap()
+      window.removeEventListener('resize', handleResize)
+      cancelAnimationFrame(animationFrameId)
     }
-  }, [navigate])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -93,282 +101,258 @@ export default function Login() {
       notify.success(`Chào mừng ${user.displayName || user.username}!`, 'Đăng nhập thành công')
       if (user.role === 'Admin') navigate('/admin')
       else if (user.role === 'Moderator') navigate('/moderator')
-      else navigate('/portal')
+      else navigate('/portal/lobby')
     } catch (err: any) {
-      notify.error(err.response?.data?.message || 'Sai email hoặc mật khẩu', 'Đăng nhập thất bại')
+      notify.error(err.response?.data?.message || 'Tên đăng nhập hoặc mật khẩu không chính xác', 'Đăng nhập thất bại')
+    }
+  }
+
+  const handleDemoSelect = async (username: string, pass: string) => {
+    setEmail(username)
+    setPassword(pass)
+    try {
+      const user = await login({ username, password: pass })
+      notify.success(`Đăng nhập demo thành công với ${username}!`, 'Thành công')
+      if (user.role === 'Admin') navigate('/admin')
+      else if (user.role === 'Moderator') navigate('/moderator')
+      else navigate('/portal/lobby')
+    } catch (err: any) {
+      notify.error('Lỗi đăng nhập demo', 'Lỗi')
     }
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-[#0a0e1a]">
-      {/* Background gradient */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            'radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.25) 0%, transparent 50%), radial-gradient(ellipse at bottom right, rgba(249, 115, 22, 0.15) 0%, transparent 50%), radial-gradient(ellipse at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%)',
-        }}
-      />
+    <div className="min-h-screen w-full relative overflow-hidden bg-[#06080e] text-slate-100 font-sans selection:bg-yellow-400 selection:text-slate-950 flex flex-col justify-between">
+      {/* Background Gothic Castle Artwork & Animated Zoom */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center opacity-45 animate-pulse"
+          style={{
+            backgroundImage:
+              'url(https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop)',
+            animationDuration: '14s',
+          }}
+        />
+        {/* Dark Vignette & Mood Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#06080e] via-[#06080e]/50 to-[#06080e]/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#06080e]/95 via-transparent to-[#06080e]/95" />
 
-      {/* Stars / sparkles */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-amber-200 animate-pulse"
-            style={{
-              width: Math.random() * 3 + 1 + 'px',
-              height: Math.random() * 3 + 1 + 'px',
-              top: Math.random() * 100 + '%',
-              left: Math.random() * 100 + '%',
-              opacity: Math.random() * 0.7 + 0.3,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`,
-              boxShadow: '0 0 6px rgba(252, 211, 77, 0.6)',
-            }}
-          />
-        ))}
+        {/* Pulsing Warm Torch Glow Blobs */}
+        <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-amber-500/15 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute top-1/3 right-1/3 w-96 h-96 bg-orange-600/10 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
-      {/* Decorative orbs */}
-      <div className="absolute top-20 left-20 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl animate-pulse" />
-      <div
-        className="absolute bottom-20 right-20 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse"
-        style={{ animationDelay: '1s' }}
-      />
+      {/* Floating Animated Ember Particle Canvas */}
+      <canvas ref={canvasRef} className="absolute inset-0 z-10 pointer-events-none" />
 
-      {/* Main card */}
-      <div className="relative z-10 w-full max-w-md mx-4 px-4">
-        {/* Logo + brand */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center gap-2 mb-3">
-            <Sparkles className="w-7 h-7 text-amber-400" />
-            <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-amber-300 via-orange-400 to-pink-400 bg-clip-text text-transparent">
-              Hold My Hand
-            </span>
-            <Sparkles className="w-7 h-7 text-amber-400" />
+      {/* Top Header Bar */}
+      <header className="relative z-20 w-full px-8 md:px-12 lg:px-16 py-6 flex items-center justify-between">
+        {/* Top-Left Logo */}
+        <Link to="/" className="flex items-center gap-3 group">
+          <div className="w-9 h-9 rounded-xl bg-yellow-400 flex items-center justify-center text-slate-950 shadow-lg shadow-yellow-400/20 group-hover:scale-105 transition-transform">
+            <Heart className="w-5 h-5 fill-slate-950" />
           </div>
-          <h1 className="text-4xl font-black text-white tracking-tight">
-            Welcome Back
+          <div className="flex flex-col">
+            <span className="text-lg font-black tracking-tight text-white leading-none">
+              HOLD MY HAND
+            </span>
+            <span className="text-[9px] tracking-widest text-slate-400 font-bold uppercase mt-0.5">
+              GAME PORTAL CO-OP
+            </span>
+          </div>
+        </Link>
+
+        {/* Top-Right Navigation Link */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Trang chủ
+        </Link>
+      </header>
+
+      {/* Main Content Split View matching screenshot */}
+      <main className="relative z-20 w-full px-8 md:px-12 lg:px-16 py-8 flex-1 flex flex-col md:flex-row items-center justify-between gap-12">
+        {/* Left Side Showcase Text */}
+        <div className="max-w-xl space-y-6">
+          {/* Tagline Badge */}
+          <div className="inline-flex items-center gap-3">
+            <span className="h-0.5 w-6 bg-yellow-400 rounded-full" />
+            <span className="text-[11px] font-bold text-yellow-400 tracking-[0.2em] uppercase font-sans">
+              BETTER, TOGETHER.
+            </span>
+          </div>
+
+          {/* Main Huge Title */}
+          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[96px] font-black text-white tracking-tight leading-[1.04] font-sans antialiased">
+            HOLD
+            <br />
+            MY HAND<span className="text-yellow-400 font-black">.</span>
           </h1>
-          <p className="text-slate-400 mt-2 text-sm">
-            Continue your journey with{' '}
-            <span className="text-amber-300 font-medium">Dad & Child</span>
+
+          {/* Yellow Accent Line */}
+          <div className="h-1 w-16 bg-yellow-400 rounded-full" />
+
+          {/* Subtitle */}
+          <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-normal max-w-md">
+            Một người bạn. Một cuộc phiêu lưu.
+            <br />
+            Vô vàn thế giới đang chờ bạn.
           </p>
         </div>
 
-        {/* Form card */}
-        <div
-          className="bg-slate-900/60 backdrop-blur-2xl rounded-3xl p-8 border border-white/10 shadow-2xl"
-          style={{
-            boxShadow:
-              '0 0 40px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-          }}
-        >
-          <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Right Side Glassmorphic Floating Entry Point Box */}
+        <div className="w-full max-w-[420px] bg-black/75 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl relative">
+          {/* Header inside Entry Box */}
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-[11px] font-bold text-yellow-400 uppercase tracking-widest block">
+                PORTAL ACCESS
+              </span>
+              <span className="font-mono text-[10px] text-slate-500 block mt-1">
+                22 : HMH-092-01
+              </span>
+            </div>
+            <button
+              onClick={() => navigate('/')}
+              className="w-8 h-8 rounded-md border border-white/10 bg-white/5 hover:bg-white/15 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Title inside Box */}
+          <h2 className="text-4xl md:text-[44px] font-black text-white tracking-tight mt-8 mb-8 leading-none font-sans">
+            ENTRY
+            <br />
+            POINT
+          </h2>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-xl text-sm text-center">
+              <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-lg text-xs font-medium text-center">
                 {error}
               </div>
             )}
 
-            {/* Email */}
+            {/* Field 1: Username / Email */}
             <div>
-              <label className="block text-sm font-semibold text-slate-300 mb-2">
-                Email
+              <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2">
+                TÊN ĐĂNG NHẬP / EMAIL
               </label>
-              <div
-                className={`relative flex items-center bg-slate-950/60 border-2 rounded-2xl transition-all ${
-                  emailFocused
-                    ? 'border-amber-400 shadow-lg shadow-amber-400/10'
-                    : 'border-slate-800'
-                }`}
-              >
-                <Mail
-                  className={`w-5 h-5 ml-4 transition-colors ${
-                    emailFocused ? 'text-amber-400' : 'text-slate-500'
-                  }`}
-                />
-                <input
-                  type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={() => setEmailFocused(true)}
-                  onBlur={() => setEmailFocused(false)}
-                  placeholder="username or email"
-                  autoComplete="username"
-                  className="flex-1 px-4 py-3.5 bg-transparent text-white placeholder-slate-500 focus:outline-none"
-                />
-              </div>
+              <input
+                type="text"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="USER_LOGIN_TOKEN"
+                className="w-full px-4 py-3.5 bg-[#0b0e17]/90 border border-slate-800 rounded-lg text-sm text-white placeholder:text-slate-600 font-mono focus:border-yellow-400/80 focus:outline-none transition-colors"
+              />
             </div>
 
-            {/* Password */}
+            {/* Field 2: Password */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-semibold text-slate-300">Password</label>
-                <a
-                  href="#"
-                  className="text-xs text-amber-400 hover:text-amber-300 font-medium"
-                >
-                  Forgot?
-                </a>
+                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                  KHÓA BẢO MẬT
+                </label>
               </div>
-              <div
-                className={`relative flex items-center bg-slate-950/60 border-2 rounded-2xl transition-all ${
-                  passwordFocused
-                    ? 'border-amber-400 shadow-lg shadow-amber-400/10'
-                    : 'border-slate-800'
-                }`}
-              >
-                <Lock
-                  className={`w-5 h-5 ml-4 transition-colors ${
-                    passwordFocused ? 'text-amber-400' : 'text-slate-500'
-                  }`}
-                />
+              <div className="relative flex items-center">
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  onFocus={() => setPasswordFocused(true)}
-                  onBlur={() => setPasswordFocused(false)}
                   placeholder="••••••••"
-                  autoComplete="current-password"
-                  className="flex-1 px-4 py-3.5 bg-transparent text-white placeholder-slate-500 focus:outline-none"
+                  className="w-full px-4 py-3.5 bg-[#0b0e17]/90 border border-slate-800 rounded-lg text-sm text-white placeholder:text-slate-600 font-mono focus:border-yellow-400/80 focus:outline-none transition-colors pr-16"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="mr-3 p-1.5 text-slate-400 hover:text-amber-300 transition-colors"
+                  className="absolute right-4 text-xs font-bold text-slate-400 hover:text-white tracking-wider"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  {showPassword ? 'ẨN' : 'HIỆN'}
                 </button>
               </div>
             </div>
 
-            {/* Remember me */}
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="remember"
-                className="w-4 h-4 rounded border-slate-700 bg-slate-800 text-amber-400 focus:ring-amber-400"
-              />
-              <label htmlFor="remember" className="text-sm text-slate-300 cursor-pointer">
-                Remember me
-              </label>
-            </div>
-
-            {/* Sign in button */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="relative w-full py-4 bg-gradient-to-r from-amber-500 via-orange-500 to-pink-500 text-white font-bold rounded-2xl shadow-lg shadow-orange-500/40 hover:shadow-orange-500/60 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
+              className="w-full py-4 bg-white hover:bg-slate-100 text-slate-950 font-black text-sm tracking-wider uppercase rounded-lg shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
             >
-              {isLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                'Sign in'
-              )}
+              {isLoading ? 'ĐANG XÁC NHẬN...' : 'XÁC NHẬN TRUY CẬP'}
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-            <span className="text-xs text-slate-500 uppercase tracking-wider">or continue with</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
-          </div>
-
-          {/* Google Sign-In button chính hãng — render bởi GIS */}
-          <div
-            ref={googleBtnRef}
-            className="w-full flex items-center justify-center min-h-[48px]"
-          />
-
-          {/* Hint nếu Client ID chưa cấu hình */}
-          {googleError && (
-            <p className="mt-2 text-xs text-slate-500 text-center">{googleError}</p>
-          )}
-
-          {/* Sign up link */}
-          <p className="text-center text-sm text-slate-400 mt-6">
-            Don't have an account?{' '}
+          {/* Bottom Actions inside Box */}
+          <div className="flex items-center justify-between pt-6 mt-6 border-t border-white/10 text-xs">
             <Link
               to="/register"
-              className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400 hover:from-amber-300 hover:to-orange-300"
+              className="font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors"
             >
-              Sign up
+              TẠO TÀI KHOẢN
             </Link>
-          </p>
-        </div>
 
-        {/* Footer hint */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-slate-500 mb-2">Demo accounts</p>
-          <div className="flex flex-wrap gap-2 justify-center">
             <button
               type="button"
-              onClick={() => {
-                setEmail('admin')
-                setPassword('Admin@123')
-              }}
-              className="text-xs px-3 py-1 bg-slate-900/50 border border-slate-700 rounded-full text-slate-300 hover:border-amber-400/40 hover:text-amber-300 transition-all"
+              onClick={() => setShowDemoMenu(!showDemoMenu)}
+              className="font-bold text-slate-400 hover:text-yellow-400 uppercase tracking-wider transition-colors"
             >
-              admin
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail('moderator')
-                setPassword('Mod@123')
-              }}
-              className="text-xs px-3 py-1 bg-slate-900/50 border border-slate-700 rounded-full text-slate-300 hover:border-amber-400/40 hover:text-amber-300 transition-all"
-            >
-              moderator
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail('player1')
-                setPassword('Player@123')
-              }}
-              className="text-xs px-3 py-1 bg-slate-900/50 border border-slate-700 rounded-full text-slate-300 hover:border-amber-400/40 hover:text-amber-300 transition-all"
-            >
-              player1
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setEmail('player2')
-                setPassword('Player@123')
-              }}
-              className="text-xs px-3 py-1 bg-slate-900/50 border border-slate-700 rounded-full text-slate-300 hover:border-amber-400/40 hover:text-amber-300 transition-all"
-            >
-              player2
+              TẢI KHỎAN DEMO
             </button>
           </div>
+
+          {/* Demo Account Selection Menu */}
+          {showDemoMenu && (
+            <div className="mt-4 p-4 bg-slate-950 border border-yellow-400/30 rounded-xl animate-fadeIn space-y-2">
+              <p className="text-[11px] font-bold text-yellow-400 uppercase tracking-wider text-center">
+                Chọn nhanh tài khoản Demo 1-Click:
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDemoSelect('player1', 'Player@123')}
+                  className="px-3 py-2 bg-white/5 hover:bg-yellow-400 hover:text-slate-950 text-xs font-bold rounded-lg border border-white/10 transition-all text-slate-200"
+                >
+                  player1
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoSelect('player2', 'Player@123')}
+                  className="px-3 py-2 bg-white/5 hover:bg-yellow-400 hover:text-slate-950 text-xs font-bold rounded-lg border border-white/10 transition-all text-slate-200"
+                >
+                  player2
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoSelect('admin', 'Admin@123')}
+                  className="px-3 py-2 bg-white/5 hover:bg-yellow-400 hover:text-slate-950 text-xs font-bold rounded-lg border border-white/10 transition-all text-slate-200"
+                >
+                  admin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDemoSelect('moderator', 'Mod@123')}
+                  className="px-3 py-2 bg-white/5 hover:bg-yellow-400 hover:text-slate-950 text-xs font-bold rounded-lg border border-white/10 transition-all text-slate-200"
+                >
+                  moderator
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      </main>
+
+      {/* Bottom Status Bar */}
+      <footer className="relative z-20 w-full px-8 md:px-12 lg:px-16 py-6 border-t border-white/5 text-[11px] font-bold text-slate-500 uppercase tracking-widest flex flex-col sm:flex-row items-center justify-between gap-4">
+        <span>HOLD MY HAND · GAME PORTAL CO-OP</span>
+        <span>HAI NGƯỜI. MỘT HÀNH TRÌNH.</span>
+      </footer>
     </div>
   )
 }

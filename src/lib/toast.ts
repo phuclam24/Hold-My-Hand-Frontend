@@ -14,7 +14,7 @@ export const notify = {
   success: (message: string, title?: string) =>
     toast.success(title ? `${title} — ${message}` : message, {
       ...baseOptions,
-      icon: '🎉',
+      icon: () => '🎉',
     }),
 
   error: (message: string, title?: string) =>
@@ -26,8 +26,9 @@ export const notify = {
   info: (message: string, title?: string) =>
     toast.info(title ? `${title} — ${message}` : message, {
       ...baseOptions,
-      icon: 'ℹ️',
+      icon: () => 'ℹ️',
     }),
+
 
   warning: (message: string, title?: string) =>
     toast.warning(title ? `${title} — ${message}` : message, {

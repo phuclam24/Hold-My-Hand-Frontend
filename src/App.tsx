@@ -4,10 +4,7 @@ import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import PortalLayout from './components/layout/PortalLayout'
 import AdminLayout from './components/layout/Layout'
-import PortalHome from './pages/portal/Home'
-import PortalProfile from './pages/portal/Profile'
-import PortalHistory from './pages/portal/History'
-import PortalLobby from './pages/portal/Lobby'
+import { LandingHome, PortalHome, PortalProfile, PortalHistory, PortalLobby } from './pages/portal'
 import AdminDashboard from './pages/admin/Dashboard'
 import AccountManagement from './pages/admin/AccountManagement'
 import AuditLogs from './pages/admin/AuditLogs'
@@ -27,7 +24,7 @@ function ProtectedRoute({
   const { isAuthenticated, user } = useAuthStore()
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/" replace />
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
@@ -40,17 +37,13 @@ function ProtectedRoute({
   return <>{children}</>
 }
 
-function RootRedirect() {
-  const { isAuthenticated, user } = useAuthStore()
-  if (!isAuthenticated) return <Navigate to="/login" replace />
-  if (user?.role === 'Admin') return <Navigate to="/admin" replace />
-  if (user?.role === 'Moderator') return <Navigate to="/moderator" replace />
-  return <Navigate to="/portal" replace />
-}
-
 function App() {
   return (
     <Routes>
+      {/* Public Game Portal Homepage */}
+      <Route path="/" element={<LandingHome />} />
+
+      {/* Auth routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
@@ -99,10 +92,11 @@ function App() {
         <Route path="quests" element={<QuestManagement />} />
       </Route>
 
-      <Route path="/" element={<RootRedirect />} />
-      <Route path="*" element={<RootRedirect />} />
+      {/* Fallback to homepage */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
 
 export default App
+

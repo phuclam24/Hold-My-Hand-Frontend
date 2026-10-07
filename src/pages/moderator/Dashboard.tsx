@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { Gamepad2, BookOpen, ScrollText, Users, TrendingUp, Award } from 'lucide-react'
+import { Gamepad2, BookOpen, ScrollText, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { charactersApi, chaptersApi, questsApi } from '@/api'
 

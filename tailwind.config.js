@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"Be Vietnam Pro"', '"Inter"', '"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Be Vietnam Pro"', '"Inter"', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#eff6ff',
