@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { accountsApi } from '@/api'
 import {
-  Card,
   Button,
   Modal,
 } from '@/components/ui'
@@ -155,20 +154,25 @@ export default function AccountManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Quản lý User</h1>
-          <p className="text-slate-500 mt-1 text-sm">{accounts.length} tài khoản trong hệ thống</p>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Quản lý người chơi</h2>
+          <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
+            {accounts.length} tài khoản người dùng trong hệ thống
+          </p>
         </div>
-        <Button onClick={() => setActionModal('create')} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+        <Button
+          onClick={() => setActionModal('create')}
+          className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold shadow-lg shadow-amber-500/20 border-none self-start sm:self-center"
+        >
           <UserPlus className="w-4 h-4 mr-2" />
           Tạo tài khoản
         </Button>
       </div>
 
-      <Card className="p-0 overflow-hidden">
+      <div className="bg-[#111622]/90 border border-slate-800/80 rounded-xl shadow-xl overflow-hidden">
         {/* Toolbar */}
-        <div className="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="px-6 py-4 border-b border-slate-800/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-900/40">
           <div className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
@@ -179,7 +183,7 @@ export default function AccountManagement() {
                 setSearch(e.target.value)
                 setPage(1)
               }}
-              className="w-full pl-10 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
+              className="w-full pl-10 pr-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
             />
           </div>
           <select
@@ -188,7 +192,7 @@ export default function AccountManagement() {
               setRoleFilter(e.target.value)
               setPage(1)
             }}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-3 py-2 bg-slate-950/80 border border-slate-800 rounded-lg text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
           >
             <option value="">Tất cả vai trò</option>
             <option value="Admin">Admin</option>
@@ -198,96 +202,78 @@ export default function AccountManagement() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Tài khoản
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Vai trò
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Last login
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Hành động
-                </th>
+          <table className="w-full text-xs text-left">
+            <thead>
+              <tr className="border-b border-slate-800 text-slate-400 font-semibold tracking-wider text-[11px] uppercase bg-slate-900/40">
+                <th className="py-3 px-6">Tài khoản</th>
+                <th className="py-3 px-6">Vai trò</th>
+                <th className="py-3 px-6">Trạng thái</th>
+                <th className="py-3 px-6">Lần đăng nhập cuối</th>
+                <th className="py-3 px-6 text-right">Hành động</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-800/40 text-slate-300">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                    Đang tải...
+                    Đang tải danh sách...
                   </td>
                 </tr>
               ) : paged.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
-                    Không có tài khoản nào
+                    Không tìm thấy tài khoản phù hợp
                   </td>
                 </tr>
               ) : (
                 paged.map((account) => (
-                  <tr key={account.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={account.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="px-6 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
                           {account.username.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-slate-900">
+                          <p className="font-semibold text-white">
                             {account.username}
                             {account.displayName && (
-                              <span className="text-slate-500 font-normal ml-1.5">
+                              <span className="text-slate-400 font-normal ml-1">
                                 ({account.displayName})
                               </span>
                             )}
                           </p>
-                          <p className="text-xs text-slate-500">{account.email}</p>
+                          <p className="text-[10px] text-slate-400">{account.email}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-3">
-                      <span
-                        className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
-                          account.role === 'Admin'
-                            ? 'bg-rose-100 text-rose-700'
-                            : account.role === 'Moderator'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-indigo-100 text-indigo-700'
-                        }`}
-                      >
+                      <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-medium">
                         {account.role}
                       </span>
                     </td>
                     <td className="px-6 py-3">
                       <span
-                        className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
                           account.isBanned
-                            ? 'bg-rose-100 text-rose-700'
+                            ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
                             : account.isActive
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : 'bg-slate-100 text-slate-700'
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : 'bg-slate-800 text-slate-400'
                         }`}
                       >
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
                             account.isBanned
-                              ? 'bg-rose-500'
+                              ? 'bg-rose-400'
                               : account.isActive
-                              ? 'bg-emerald-500'
-                              : 'bg-slate-400'
+                              ? 'bg-emerald-400'
+                              : 'bg-slate-500'
                           }`}
                         />
-                        {account.isBanned ? 'Banned' : account.isActive ? 'Active' : 'Inactive'}
+                        {account.isBanned ? 'Bị khóa' : account.isActive ? 'Hoạt động' : 'Chưa kích hoạt'}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-slate-500 text-xs">
+                    <td className="px-6 py-3 text-slate-400 text-xs">
                       {account.lastLoginAt ? formatDate(account.lastLoginAt) : '—'}
                     </td>
                     <td className="px-6 py-3 text-right">
@@ -298,8 +284,8 @@ export default function AccountManagement() {
                               setSelectedAccount(account)
                               setActionModal('unban')
                             }}
-                            className="p-2 hover:bg-emerald-50 rounded-lg text-emerald-600 transition-colors"
-                            title="Unban"
+                            className="p-1.5 hover:bg-emerald-500/20 rounded-lg text-emerald-400 transition-colors"
+                            title="Mở khóa"
                           >
                             <CheckCircle className="w-4 h-4" />
                           </button>
@@ -310,8 +296,8 @@ export default function AccountManagement() {
                               setBanReason('')
                               setActionModal('ban')
                             }}
-                            className="p-2 hover:bg-amber-50 rounded-lg text-amber-600 transition-colors"
-                            title="Ban"
+                            className="p-1.5 hover:bg-amber-500/20 rounded-lg text-amber-400 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                            title="Khóa tài khoản"
                             disabled={account.role === 'Admin'}
                           >
                             <Ban className="w-4 h-4" />
@@ -322,8 +308,8 @@ export default function AccountManagement() {
                             setSelectedAccount(account)
                             setActionModal('delete')
                           }}
-                          className="p-2 hover:bg-rose-50 rounded-lg text-rose-600 transition-colors"
-                          title="Delete"
+                          className="p-1.5 hover:bg-rose-500/20 rounded-lg text-rose-400 transition-colors disabled:opacity-30 disabled:hover:bg-transparent"
+                          title="Xóa vĩnh viễn"
                           disabled={account.role === 'Admin'}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -339,29 +325,29 @@ export default function AccountManagement() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-slate-200 flex items-center justify-between text-sm">
-            <p className="text-slate-500">
+          <div className="px-6 py-4 border-t border-slate-800/60 flex items-center justify-between text-xs text-slate-400">
+            <p>
               Trang {page} / {totalPages} • {filtered.length} kết quả
             </p>
             <div className="inline-flex gap-2">
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setPage(Math.min(totalPages, page + 1))}
                 disabled={page === totalPages}
-                className="p-2 rounded-lg border border-slate-200 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 rounded-lg border border-slate-800 bg-slate-900 hover:bg-slate-800 text-slate-300 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Action Modal */}
       <Modal
@@ -378,37 +364,37 @@ export default function AccountManagement() {
             : 'Xóa tài khoản'
         }
       >
-        <div className="space-y-4">
+        <div className="space-y-4 text-slate-200">
           {actionModal === 'ban' && (
-            <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-amber-800">
+            <div className="flex items-start gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+              <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-200">
                 Tài khoản sẽ bị khóa và session đang hoạt động sẽ bị kick ngay lập tức.
               </p>
             </div>
           )}
-          <p className="text-slate-700">
+          <p className="text-sm">
             Bạn có chắc chắn muốn{' '}
-            <strong>
+            <strong className="text-amber-400">
               {actionModal === 'ban'
                 ? 'khóa'
                 : actionModal === 'unban'
                 ? 'mở khóa'
                 : 'xóa vĩnh viễn'}
             </strong>{' '}
-            tài khoản <strong>{selectedAccount?.username}</strong>?
+            tài khoản <strong className="text-white">{selectedAccount?.username}</strong>?
           </p>
           {actionModal === 'ban' && (
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
-                Lý do khóa <span className="text-rose-500">*</span>
+              <label className="block text-xs font-medium text-slate-300 mb-1">
+                Lý do khóa <span className="text-rose-400">*</span>
               </label>
               <textarea
                 value={banReason}
                 onChange={(e) => setBanReason(e.target.value)}
                 rows={3}
                 placeholder="Nhập lý do khóa tài khoản..."
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-xs text-white"
               />
             </div>
           )}
@@ -453,45 +439,45 @@ export default function AccountManagement() {
         title="Tạo tài khoản mới"
         size="lg"
       >
-        <div className="space-y-4">
+        <div className="space-y-4 text-slate-200">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Username</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Username</label>
             <input
               type="text"
               value={createForm.username}
               onChange={(e) => setCreateForm({ ...createForm, username: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-xs text-white"
               placeholder="username"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Email</label>
             <input
               type="email"
               value={createForm.email}
               onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-xs text-white"
               placeholder="email@example.com"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Mật khẩu</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Mật khẩu</label>
             <input
               type="password"
               value={createForm.password}
               onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-xs text-white"
               placeholder="••••••"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Vai trò</label>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Vai trò</label>
             <select
               value={createForm.role}
               onChange={(e) =>
                 setCreateForm({ ...createForm, role: e.target.value as 'Admin' | 'Moderator' | 'Player' })
               }
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-xs text-white"
             >
               <option value="Player">Player</option>
               <option value="Moderator">Moderator</option>
@@ -503,7 +489,7 @@ export default function AccountManagement() {
               Hủy
             </Button>
             <Button
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold"
               onClick={handleCreate}
               disabled={!createForm.username || !createForm.email || !createForm.password}
             >

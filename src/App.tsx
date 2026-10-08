@@ -1,9 +1,11 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+
 import { useAuthStore } from './stores/authStore'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import PortalLayout from './components/layout/PortalLayout'
 import AdminLayout from './components/layout/Layout'
+import ModeratorLayout from './components/layout/ModeratorLayout'
 import { LandingHome, PortalHome, PortalProfile, PortalHistory, PortalLobby } from './pages/portal'
 import AdminDashboard from './pages/admin/Dashboard'
 import AccountManagement from './pages/admin/AccountManagement'
@@ -82,7 +84,7 @@ function App() {
         path="/moderator"
         element={
           <ProtectedRoute allowedRoles={['Moderator']}>
-            <AdminLayout />
+            <ModeratorLayout />
           </ProtectedRoute>
         }
       >

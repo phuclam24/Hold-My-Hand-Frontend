@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { chaptersApi, questsApi } from '@/api'
-import { Card } from '@/components/ui'
-import { ScrollText } from 'lucide-react'
+import { ScrollText, Layers } from 'lucide-react'
 import type { Chapter, Quest } from '@/types'
 
 export default function QuestManagement() {
@@ -31,55 +30,65 @@ export default function QuestManagement() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Quests</h1>
-        <p className="text-slate-500 mt-1 text-sm">Danh sách quest trong game</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+        <div>
+          <h2 className="text-2xl font-extrabold text-white tracking-tight">Quests</h2>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">Danh sách quest trong game</p>
+        </div>
+
+        {/* Chapter Selector */}
+        <div className="flex items-center gap-3 bg-[#0c1019] border border-white/10 rounded-xl px-3.5 py-2">
+          <Layers className="w-4 h-4 text-yellow-400" />
+          <span className="text-xs text-slate-400 font-semibold whitespace-nowrap">Chapter:</span>
+          <select
+            value={selectedChapter}
+            onChange={(e) => setSelectedChapter(e.target.value)}
+            className="bg-transparent text-xs font-bold text-white focus:outline-none cursor-pointer"
+          >
+            {chapters.map((ch) => (
+              <option key={ch.id} value={ch.id} className="bg-[#0c1019] text-white">
+                {ch.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <Card className="p-5">
-        <label className="block text-sm font-medium text-slate-700 mb-2">Chapter</label>
-        <select
-          value={selectedChapter}
-          onChange={(e) => setSelectedChapter(e.target.value)}
-          className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-        >
-          {chapters.map((ch) => (
-            <option key={ch.id} value={ch.id}>
-              {ch.name}
-            </option>
-          ))}
-        </select>
-      </Card>
-
       {loading ? (
-        <div className="text-center py-12 text-slate-500">Đang tải...</div>
+        <div className="text-center py-16 text-slate-400 text-sm font-medium animate-pulse">
+          Đang tải quest...
+        </div>
       ) : quests.length === 0 ? (
-        <Card className="p-12 text-center">
-          <ScrollText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500">Chưa có quest nào trong chapter này</p>
-        </Card>
+        <div className="p-12 text-center bg-[#0c1019] border border-white/10 rounded-2xl">
+          <ScrollText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+          <p className="text-slate-400 text-sm">Chưa có quest nào trong chapter này</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {quests
             .sort((a, b) => a.orderIndex - b.orderIndex)
             .map((quest) => (
-              <Card key={quest.id} className="p-5 hover:shadow-md transition-shadow">
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                    {quest.orderIndex}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900">{quest.name}</h3>
-                    <p className="text-sm text-slate-500 mt-1">{quest.description}</p>
-                    <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-medium">
-                      {quest.questType}
+              <div
+                key={quest.id}
+                className="p-6 bg-[#0c1019] border border-white/10 hover:border-yellow-400/30 rounded-2xl transition-all duration-300 flex items-start gap-4"
+              >
+                <div className="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center text-yellow-400 font-mono text-sm font-extrabold flex-shrink-0">
+                  #{quest.orderIndex}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-white text-base">{quest.name}</h3>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">{quest.description}</p>
+                  <div className="mt-3">
+                    <span className="inline-block text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300 font-semibold">
+                      Loại: {quest.questType}
                     </span>
                   </div>
                 </div>
-              </Card>
+              </div>
             ))}
         </div>
       )}
     </div>
   )
 }
+
