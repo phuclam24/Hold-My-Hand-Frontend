@@ -1,14 +1,17 @@
 import api from '@/lib/api'
-import type { Quest, PaginatedResponse } from '@/types'
+import type {
+  Quest,
+  CreateQuestRequest,
+  UpdateQuestRequest,
+} from '@/types'
 
+/**
+ * Mod quests API — full CRUD.
+ * Endpoint: /api/mod/quests
+ */
 export const questsApi = {
-  getAll: async (params?: {
-    page?: number
-    pageSize?: number
-    chapterId?: string
-    difficulty?: string
-  }): Promise<PaginatedResponse<Quest>> => {
-    const response = await api.get<PaginatedResponse<Quest>>('/api/mod/quests', { params })
+  getAll: async (params?: { chapterId?: string }): Promise<Quest[]> => {
+    const response = await api.get<Quest[]>('/api/mod/quests', { params })
     return response.data
   },
 
@@ -17,12 +20,12 @@ export const questsApi = {
     return response.data
   },
 
-  create: async (data: Omit<Quest, 'id' | 'isCompleted'>): Promise<Quest> => {
+  create: async (data: CreateQuestRequest): Promise<Quest> => {
     const response = await api.post<Quest>('/api/mod/quests', data)
     return response.data
   },
 
-  update: async (id: string, data: Partial<Quest>): Promise<Quest> => {
+  update: async (id: string, data: UpdateQuestRequest): Promise<Quest> => {
     const response = await api.put<Quest>(`/api/mod/quests/${id}`, data)
     return response.data
   },
@@ -32,7 +35,9 @@ export const questsApi = {
   },
 
   getByChapter: async (chapterId: string): Promise<Quest[]> => {
-    const response = await api.get<Quest[]>(`/api/mod/chapters/${chapterId}/quests`)
+    const response = await api.get<Quest[]>('/api/mod/quests', {
+      params: { chapterId },
+    })
     return response.data
   },
 }

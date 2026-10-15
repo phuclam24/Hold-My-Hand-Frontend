@@ -165,9 +165,30 @@ export interface ModActionLog {
 export interface Character {
   id: string
   name: string
-  role: 'Dad' | 'Child'
+  physicsType?: string
+  primaryStatName?: string
+  role?: 'Dad' | 'Child'
   isActive: boolean
-  attributes?: Record<string, unknown>
+  attributes?: CharacterAttribute[] | Record<string, unknown>
+  combatAbilities?: CombatAbility[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface CharacterAttribute {
+  statName: string
+  minValue: number
+  maxValue: number
+  startingValue: number
+  regenRate: number
+  regenDelay: number
+  eventFlags?: number
+}
+
+export interface CombatAbility {
+  name: string
+  effect: string
+  cooldownSec: number
 }
 
 export interface Chapter {
@@ -176,7 +197,17 @@ export interface Chapter {
   theme: string
   orderIndex: number
   description: string
+  backgroundAssetKey?: string
   isActive?: boolean
+  cutscenes?: Cutscene[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface Cutscene {
+  title: string
+  durationSec: number
+  triggerPoint: string
 }
 
 export interface Quest {
@@ -187,6 +218,71 @@ export interface Quest {
   orderIndex: number
   chapterId: string
   isActive?: boolean
+  objectives?: QuestObjective[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface QuestObjective {
+  id?: string
+  description: string
+  targetCount: number
+}
+
+// ─── Create/Update Request Types ───────────────────────────────
+
+export interface CreateChapterRequest {
+  name: string
+  theme: string
+  orderIndex: number
+  description: string
+  backgroundAssetKey?: string
+  cutscenes?: Cutscene[]
+}
+
+export interface UpdateChapterRequest {
+  name?: string
+  theme?: string
+  orderIndex?: number
+  description?: string
+  backgroundAssetKey?: string
+  isActive?: boolean
+  cutscenes?: Cutscene[]
+}
+
+export interface CreateQuestRequest {
+  chapterId: string
+  name: string
+  questType: string
+  description: string
+  orderIndex: number
+  objectives: QuestObjective[]
+}
+
+export interface UpdateQuestRequest {
+  name?: string
+  questType?: string
+  description?: string
+  orderIndex?: number
+  isActive?: boolean
+  objectives?: QuestObjective[]
+}
+
+export interface CreateCharacterRequest {
+  name: string
+  physicsType: string
+  primaryStatName: string
+  attributes: CharacterAttribute[]
+  combatAbilities?: CombatAbility[]
+}
+
+export interface UpdateCharacterRequest {
+  name?: string
+  physicsType?: string
+  primaryStatName?: string
+  isActive?: boolean
+  attributes?: CharacterAttribute[]
+  combatAbilities?: CombatAbility[]
 }
 
 // ─── API Helpers ────────────────────────────────────────────────

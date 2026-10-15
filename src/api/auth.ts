@@ -98,15 +98,14 @@ export const authApi = {
   },
 
   refreshToken: async (refreshToken: string): Promise<TokenResponse> => {
-    try {
-      const response = await api.post<TokenResponse>('/api/auth/refresh', { refreshToken })
-      return response.data
-    } catch {
-      return {
-        accessToken: 'mock-refreshed-access-token',
-        refreshToken: 'mock-refreshed-refresh-token',
-      }
-    }
+    // Quan trọng: KHÔNG fallback mock khi backend từ chối refresh.
+    // Nếu backend trả 401 (token hết hạn / bị rotate / server restart),
+    // interceptor sẽ logout user sạch sẽ về /login thay vì giữ token fake
+    // → tránh loop 401 liên tục.
+    const response = await api.post<TokenResponse>('/api/auth/refresh', {
+      refreshToken,
+    })
+    return response.data
   },
 
   googleLogin: async (idToken: string): Promise<LoginResponse> => {

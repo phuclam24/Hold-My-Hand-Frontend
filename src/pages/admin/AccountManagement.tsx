@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
+  Pencil,
 } from 'lucide-react'
 import type { Account } from '@/types'
 
@@ -27,13 +28,19 @@ export default function AccountManagement() {
   const [page, setPage] = useState(1)
   const pageSize = 10
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null)
-  const [actionModal, setActionModal] = useState<'ban' | 'unban' | 'delete' | 'create' | null>(null)
+  const [actionModal, setActionModal] = useState<'ban' | 'unban' | 'delete' | 'create' | 'edit' | null>(null)
   const [banReason, setBanReason] = useState('')
   const [createForm, setCreateForm] = useState({
     username: '',
     email: '',
     password: '',
     role: 'Player' as 'Admin' | 'Moderator' | 'Player',
+  })
+  const [editForm, setEditForm] = useState({
+    email: '',
+    displayName: '',
+    avatarUrl: '',
+    isActive: true,
   })
   const { addNotification } = useNotificationStore()
 
@@ -146,6 +153,28 @@ export default function AccountManagement() {
         title: 'Lỗi',
         message: err.response?.data?.message || 'Không thể xóa',
       })
+    }
+    setActionModal(null)
+    setSelectedAccount(null)
+  }
+
+  const handleEdit = async () => {
+    if (!selectedAccount) return
+    try {
+      await accountsApi.update(selectedAccount.id, editForm)
+      addNotification({
+        type: 'success',
+        title: 'Đã lưu',
+        message: `Đã cập nhật tài khoản ${selectedAccount.username}`,
+      })
+      await loadAccounts()
+    } catch (err: any) {
+      addNotification({
+        type: 'error',
+        title: 'Lỗi',
+        message: err.response?.data?.message || 'Không thể cập nhật',
+      })
+      return
     }
     setActionModal(null)
     setSelectedAccount(null)
@@ -278,6 +307,22 @@ export default function AccountManagement() {
                     </td>
                     <td className="px-6 py-3 text-right">
                       <div className="inline-flex gap-1">
+                        <button
+                          onClick={() => {
+                            setSelectedAccount(account)
+                            setEditForm({
+                              email: account.email,
+                              displayName: account.displayName || '',
+                              avatarUrl: account.avatarUrl || '',
+                              isActive: account.isActive,
+                            })
+                            setActionModal('edit')
+                          }}
+                          className="p-1.5 hover:bg-amber-500/20 rounded-lg text-amber-400 transition-colors"
+                          title="Chỉnh sửa"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
                         {account.isBanned ? (
                           <button
                             onClick={() => {
@@ -494,6 +539,81 @@ export default function AccountManagement() {
               disabled={!createForm.username || !createForm.email || !createForm.password}
             >
               Tạo tài khoản
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={actionModal === 'edit'}
+        onClose={() => {
+          setActionModal(null)
+          setSelectedAccount(null)
+        }}
+        title={`Chỉnh sửa tài khoản — ${selectedAccount?.username}`}
+        size="lg"
+      >
+        <div className="space-y-4 text-slate-200">
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Email</label>
+            <input
+              type="email"
+              value={editForm.email}
+              onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-xs text-white"
+              placeholder="email@example.com"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Tên hiển thị</label>
+            <input
+              type="text"
+              value={editForm.displayName}
+              onChange={(e) => setEditForm({ ...editForm, displayName: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-xs text-white"
+              placeholder="Tên hiển thị"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-300 mb-1">Avatar URL</label>
+            <input
+              type="text"
+              value={editForm.avatarUrl}
+              onChange={(e) => setEditForm({ ...editForm, avatarUrl: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500/50 text-xs text-white"
+              placeholder="https://..."
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="isActive"
+              checked={editForm.isActive}
+              onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })}
+              className="w-4 h-4 accent-amber-500 rounded bg-slate-900 border-slate-700"
+            />
+            <label htmlFor="isActive" className="text-xs text-slate-300 cursor-pointer">
+              Tài khoản đang hoạt động
+            </label>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setActionModal(null)
+                setSelectedAccount(null)
+              }}
+            >
+              <X className="w-4 h-4 mr-2" />
+              Hủy
+            </Button>
+            <Button
+              className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold"
+              onClick={handleEdit}
+              disabled={!editForm.email.trim()}
+            >
+              Lưu thay đổi
             </Button>
           </div>
         </div>
