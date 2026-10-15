@@ -35,5 +35,10 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.8.1",
     "vite": "^7.1.0"
+  },
+  "overrides": {
+    "braces": "^3.0.3",
+    "postcss-selector-parser": "^7.1.6",
+    "source-map-js": "^1.2.2"
   }
 }
