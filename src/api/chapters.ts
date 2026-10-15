@@ -1,31 +1,31 @@
-import api from '@/lib/api'
+import api, { queueApiRequest } from '@/lib/api'
 import type { Chapter, Quest } from '@/types'
 
 export const chaptersApi = {
   getAll: async (): Promise<Chapter[]> => {
-    const response = await api.get<Chapter[]>('/api/game/chapters')
+    const response = await queueApiRequest(() => api.get<Chapter[]>('/api/mod/chapters'))
     return response.data
   },
 
   getById: async (id: string): Promise<Chapter> => {
-    const response = await api.get<Chapter>(`/api/game/chapters/${id}`)
+    const response = await queueApiRequest(() => api.get<Chapter>(`/api/mod/chapters/${id}`))
     return response.data
   },
 
   getQuests: async (chapterId: string): Promise<Quest[]> => {
-    const response = await api.get<Quest[]>(`/api/game/chapters/${chapterId}/quests`)
+    const response = await queueApiRequest(() => api.get<Quest[]>('/api/mod/quests', { params: { chapterId } }))
     return response.data
   },
 }
 
 export const questsApi = {
   getByChapter: async (chapterId: string): Promise<Quest[]> => {
-    const response = await api.get<Quest[]>(`/api/game/chapters/${chapterId}/quests`)
+    const response = await queueApiRequest(() => api.get<Quest[]>('/api/mod/quests', { params: { chapterId } }))
     return response.data
   },
 
-  getById: async (chapterId: string, questId: string): Promise<Quest> => {
-    const response = await api.get<Quest>(`/api/game/chapters/${chapterId}/quests/${questId}`)
+  getById: async (_chapterId: string, questId: string): Promise<Quest> => {
+    const response = await queueApiRequest(() => api.get<Quest>(`/api/mod/quests/${questId}`))
     return response.data
   },
 }

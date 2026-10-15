@@ -238,7 +238,7 @@ export default function AdminDashboard() {
                           {room.lobbyCode}
                         </span>
                         <span className="text-slate-300">
-                          {room.player1Username || 'Player 1'} vs {room.player2Username || 'Player 2'}
+                          {room.player1Username || '-'} vs {room.player2Username || '-'}
                         </span>
                       </div>
                       <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/20">

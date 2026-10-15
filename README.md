@@ -46,7 +46,6 @@ Hold-My-Hand-Frontend/
   - Nút **"Continue with Google"** chính hãng do Google render (mở popup chọn tài khoản)
   - **Google One Tap** — bảng chọn tài khoản tự trượt vào góc trên phải ngay khi vào trang
   - `idToken` được gửi về backend `/api/auth/google` (xem `src/lib/googleAuth.ts`)
-- Demo accounts hiển thị ngay trong form
 - Trang Register đầy đủ validation
 
 ### Cấu hình Google Sign-In
@@ -59,10 +58,12 @@ Hold-My-Hand-Frontend/
    ```
 3. Copy `Client ID` rồi tạo file `.env.local` (cùng cấp với `package.json`):
    ```env
-   VITE_API_URL=http://localhost:5181
+   VITE_API_URL=https://hold-my-hand-backend.vercel.app
    VITE_GOOGLE_CLIENT_ID=xxxxxxxxxxxx-xxxxxxxx.apps.googleusercontent.com
    ```
 4. Khởi động lại `npm run dev` để Vite nạp biến môi trường.
+
+> `VITE_API_URL` được dùng trực tiếp từ trình duyệt nên backend URL vẫn có thể xem trong Network tab. Biến môi trường chỉ tránh hardcode URL trong source; muốn ẩn URL cần gọi API qua backend/proxy do bạn kiểm soát.
 
 > One Tap có thể bị chặn do `third_party_cookies_disabled` (Safari ITP), `opt_out_or_no_session`, hoặc user chưa từng đăng nhập Google trên trình duyệt. Khi đó người dùng vẫn có thể bấm nút "Continue with Google" để mở popup chọn tài khoản.
 
@@ -94,16 +95,7 @@ npm install
 npm run dev
 ```
 
-Mặc định frontend chạy ở `http://localhost:3000` và proxy sang backend `http://localhost:5181`.
-
-## Tài khoản demo
-
-| Role | Username | Password |
-|---|---|---|
-| Admin | `admin` | `Admin@123` |
-| Moderator | `moderator` | `Mod@123` |
-| Player | `player1` | `Player@123` |
-| Player | `player2` | `Player@123` |
+Frontend chạy ở `http://localhost:3000`. API backend được cấu hình bằng `VITE_API_URL` trong `.env.local`.
 
 ## Scripts
 

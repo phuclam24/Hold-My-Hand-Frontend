@@ -6,7 +6,6 @@ import type { ActiveRoom } from '@/types'
 export default function ActiveRooms() {
   const [rooms, setRooms] = useState<ActiveRoom[]>([])
   const [loading, setLoading] = useState(true)
-  const [autoRefresh, setAutoRefresh] = useState(true)
 
   const loadRooms = async () => {
     setLoading(true)
@@ -23,12 +22,6 @@ export default function ActiveRooms() {
   useEffect(() => {
     loadRooms()
   }, [])
-
-  useEffect(() => {
-    if (!autoRefresh) return
-    const interval = setInterval(loadRooms, 10000)
-    return () => clearInterval(interval)
-  }, [autoRefresh])
 
   const stats = {
     total: rooms.length,
@@ -47,15 +40,6 @@ export default function ActiveRooms() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-2 text-xs text-slate-400 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={autoRefresh}
-              onChange={(e) => setAutoRefresh(e.target.checked)}
-              className="w-4 h-4 accent-amber-500 rounded bg-slate-900 border-slate-700"
-            />
-            Tự động làm mới
-          </label>
           <button
             onClick={loadRooms}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#141a26] border border-slate-800 rounded-lg text-xs font-medium text-slate-200 hover:text-white hover:bg-[#1a2232] transition-colors"

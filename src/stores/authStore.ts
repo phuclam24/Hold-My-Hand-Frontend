@@ -51,7 +51,9 @@ export const useAuthStore = create<AuthState>()(
           })
           return user
         } catch (error: any) {
-          const message = error.response?.data?.message || error.response?.data || 'Đăng nhập thất bại'
+          const message = error.response?.status === 401
+            ? 'Tên đăng nhập hoặc mật khẩu không chính xác'
+            : error.response?.data?.message || error.response?.data || 'Đăng nhập thất bại'
           set({
             error: typeof message === 'string' ? message : 'Đăng nhập thất bại',
             isLoading: false,
@@ -94,16 +96,14 @@ export const useAuthStore = create<AuthState>()(
       refreshAccessToken: async () => {
         const refreshToken = get().refreshToken
         if (!refreshToken) throw new Error('No refresh token')
-        try {
-          const data = await authApi.refreshToken(refreshToken)
-          localStorage.setItem('accessToken', data.accessToken)
-          localStorage.setItem('refreshToken', data.refreshToken)
-          set({ accessToken: data.accessToken, refreshToken: data.refreshToken })
-        } catch (error) {
-          // Refresh failed, logout
-          await get().logout()
-          throw error
+        const data = await authApi.refreshToken(refreshToken)
+        if (!data.accessToken || !data.refreshToken) {
+          throw new Error('Refresh response did not include both tokens')
         }
+
+        localStorage.setItem('accessToken', data.accessToken)
+        localStorage.setItem('refreshToken', data.refreshToken)
+        set({ accessToken: data.accessToken, refreshToken: data.refreshToken })
       },
 
       clearError: () => set({ error: null }),

@@ -46,7 +46,7 @@ export default function ModeratorLayout() {
       }
     }
     loadStats()
-  }, [location.pathname])
+  }, [])
 
   const navItems = [
     { path: '/moderator', label: 'Tổng quan', icon: LayoutGrid, count: null, exact: true },

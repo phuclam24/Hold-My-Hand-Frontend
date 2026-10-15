@@ -11,7 +11,6 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [showDemoMenu, setShowDemoMenu] = useState(false)
 
   // Floating Particles Canvas Ref
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -103,21 +102,10 @@ export default function Login() {
       else if (user.role === 'Moderator') navigate('/moderator')
       else navigate('/portal/lobby')
     } catch (err: any) {
-      notify.error(err.response?.data?.message || 'Tên đăng nhập hoặc mật khẩu không chính xác', 'Đăng nhập thất bại')
-    }
-  }
-
-  const handleDemoSelect = async (username: string, pass: string) => {
-    setEmail(username)
-    setPassword(pass)
-    try {
-      const user = await login({ username, password: pass })
-      notify.success(`Đăng nhập demo thành công với ${username}!`, 'Thành công')
-      if (user.role === 'Admin') navigate('/admin')
-      else if (user.role === 'Moderator') navigate('/moderator')
-      else navigate('/portal/lobby')
-    } catch (err: any) {
-      notify.error('Lỗi đăng nhập demo', 'Lỗi')
+      const message = err.response?.status === 401
+        ? 'Tên đăng nhập hoặc mật khẩu không chính xác'
+        : err.response?.data?.message || 'Đăng nhập thất bại'
+      notify.error(message, 'Đăng nhập thất bại')
     }
   }
 
@@ -290,61 +278,14 @@ export default function Login() {
           </form>
 
           {/* Bottom Actions inside Box */}
-          <div className="flex items-center justify-between pt-6 mt-6 border-t border-white/10 text-xs">
+          <div className="flex items-center pt-6 mt-6 border-t border-white/10 text-xs">
             <Link
               to="/register"
               className="font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors"
             >
               TẠO TÀI KHOẢN
             </Link>
-
-            <button
-              type="button"
-              onClick={() => setShowDemoMenu(!showDemoMenu)}
-              className="font-bold text-slate-400 hover:text-yellow-400 uppercase tracking-wider transition-colors"
-            >
-              TẢI KHỎAN DEMO
-            </button>
           </div>
-
-          {/* Demo Account Selection Menu */}
-          {showDemoMenu && (
-            <div className="mt-4 p-4 bg-slate-950 border border-yellow-400/30 rounded-xl animate-fadeIn space-y-2">
-              <p className="text-[11px] font-bold text-yellow-400 uppercase tracking-wider text-center">
-                Chọn nhanh tài khoản Demo 1-Click:
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleDemoSelect('player1', 'Player@123')}
-                  className="px-3 py-2 bg-white/5 hover:bg-yellow-400 hover:text-slate-950 text-xs font-bold rounded-lg border border-white/10 transition-all text-slate-200"
-                >
-                  player1
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoSelect('player2', 'Player@123')}
-                  className="px-3 py-2 bg-white/5 hover:bg-yellow-400 hover:text-slate-950 text-xs font-bold rounded-lg border border-white/10 transition-all text-slate-200"
-                >
-                  player2
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoSelect('admin', 'Admin@123')}
-                  className="px-3 py-2 bg-white/5 hover:bg-yellow-400 hover:text-slate-950 text-xs font-bold rounded-lg border border-white/10 transition-all text-slate-200"
-                >
-                  admin
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDemoSelect('moderator', 'Mod@123')}
-                  className="px-3 py-2 bg-white/5 hover:bg-yellow-400 hover:text-slate-950 text-xs font-bold rounded-lg border border-white/10 transition-all text-slate-200"
-                >
-                  moderator
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </main>
 

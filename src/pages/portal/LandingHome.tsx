@@ -677,56 +677,6 @@ export default function LandingHome() {
                 )}
               </div>
 
-              {/* Demo accounts selector */}
-              {authMode === 'login' && (
-                <div className="pt-3 border-t border-slate-800">
-                  <p className="text-[11px] font-semibold text-slate-400 mb-2">
-                    Chọn nhanh tài khoản demo:
-                  </p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUsername('player1')
-                        setPassword('Player@123')
-                      }}
-                      className="text-xs px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-slate-300 hover:border-yellow-400 hover:text-yellow-400 transition-all"
-                    >
-                      player1
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUsername('player2')
-                        setPassword('Player@123')
-                      }}
-                      className="text-xs px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-slate-300 hover:border-yellow-400 hover:text-yellow-400 transition-all"
-                    >
-                      player2
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUsername('admin')
-                        setPassword('Admin@123')
-                      }}
-                      className="text-xs px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-slate-300 hover:border-yellow-400 hover:text-yellow-400 transition-all"
-                    >
-                      admin
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setUsername('moderator')
-                        setPassword('Mod@123')
-                      }}
-                      className="text-xs px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-slate-300 hover:border-yellow-400 hover:text-yellow-400 transition-all"
-                    >
-                      moderator
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>

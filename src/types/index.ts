@@ -165,9 +165,43 @@ export interface ModActionLog {
 export interface Character {
   id: string
   name: string
-  role: 'Dad' | 'Child'
+  role?: 'Dad' | 'Child'
+  physicsType?: 'Platformer' | 'Shooter' | string
+  primaryStatName?: string
   isActive: boolean
-  attributes?: Record<string, unknown>
+  attributes?: CharacterAttribute[]
+  combatAbilities?: CharacterCombatAbility[]
+  movement?: CharacterMovement
+}
+
+export interface CharacterAttribute {
+  statName: string
+  minValue: number
+  maxValue: number
+  startingValue: number
+  regenRate: number
+  regenDelay: number
+  eventFlags: number
+}
+
+export interface CharacterCombatAbility {
+  name: string
+  effect: string
+  cooldownSec: number
+}
+
+export interface CharacterMovement {
+  moveSpeed?: number
+  sprintSpeed?: number
+  rotationSmoothingTime?: number
+  speedChangeRate?: number
+  forceDecayRate?: number
+  gravity?: number
+  jumpHeight?: number
+  groundedOffset?: number
+  groundedRadius?: number
+  slopeForce?: number
+  slopeForceRayLength?: number
 }
 
 export interface Chapter {
