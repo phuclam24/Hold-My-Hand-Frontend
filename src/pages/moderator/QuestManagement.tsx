@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { chaptersApi, questsApi } from '@/api'
+import { MagicCard } from '@/components/ui'
 import { ScrollText, Layers } from 'lucide-react'
 import type { Chapter, Quest } from '@/types'
 
@@ -59,18 +60,20 @@ export default function QuestManagement() {
           Đang tải quest...
         </div>
       ) : quests.length === 0 ? (
-        <div className="p-12 text-center bg-[#0c1019] border border-white/10 rounded-2xl">
+        <MagicCard glowColor="amber" intensity={3} interactive={false} className="p-12 text-center">
           <ScrollText className="w-12 h-12 text-slate-600 mx-auto mb-3" />
           <p className="text-slate-400 text-sm">Chưa có quest nào trong chapter này</p>
-        </div>
+        </MagicCard>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {quests
             .sort((a, b) => a.orderIndex - b.orderIndex)
             .map((quest) => (
-              <div
+              <MagicCard
                 key={quest.id}
-                className="p-6 bg-[#0c1019] border border-white/10 hover:border-yellow-400/30 rounded-2xl transition-all duration-300 flex items-start gap-4"
+                glowColor="amber"
+                intensity={3}
+                className="p-6 flex items-start gap-4"
               >
                 <div className="w-10 h-10 rounded-xl bg-yellow-400/10 border border-yellow-400/20 flex items-center justify-center text-yellow-400 font-mono text-sm font-extrabold flex-shrink-0">
                   #{quest.orderIndex}
@@ -84,7 +87,7 @@ export default function QuestManagement() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </MagicCard>
             ))}
         </div>
       )}

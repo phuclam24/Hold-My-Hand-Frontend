@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { profileApi } from '@/api'
-import { Card, Button } from '@/components/ui'
+import { MagicCard, Button } from '@/components/ui'
 import { useNotificationStore } from '@/stores'
 import { Save, Lock, User as UserIcon, Camera } from 'lucide-react'
 import type { ProfileResponse } from '@/types'
@@ -101,7 +101,7 @@ export default function PortalProfile() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Personal info */}
-        <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
+        <MagicCard glowColor="rose" intensity={3} interactive={false} className="p-6">
           <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-5">
             <UserIcon className="w-5 h-5 text-pink-400" />
             Thông tin cá nhân
@@ -141,10 +141,10 @@ export default function PortalProfile() {
               />
             </div>
           </div>
-        </Card>
+        </MagicCard>
 
         {/* Password */}
-        <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-6">
+        <MagicCard glowColor="indigo" intensity={3} interactive={false} className="p-6">
           <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-5">
             <Lock className="w-5 h-5 text-purple-400" />
             Đổi mật khẩu
@@ -190,7 +190,7 @@ export default function PortalProfile() {
               Để trống nếu không muốn đổi mật khẩu
             </p>
           </div>
-        </Card>
+        </MagicCard>
       </div>
 
       <div className="flex justify-end">

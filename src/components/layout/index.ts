@@ -1,4 +1,6 @@
 export { default as Layout } from './Layout'
 export { default as PortalLayout } from './PortalLayout'
 export { default as ModeratorLayout } from './ModeratorLayout'
-
+export { default as CosmicBackground } from './CosmicBackground'
+export { default as PageShell } from './PageShell'
+export { default as Sidebar } from './Sidebar'

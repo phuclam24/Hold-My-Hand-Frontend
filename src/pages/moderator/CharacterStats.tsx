@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { charactersApi } from '@/api'
+import { MagicCard } from '@/components/ui'
 import {
   Activity,
   ArrowDownToLine,
@@ -273,51 +274,53 @@ export default function CharacterStats() {
       </aside>
 
       <section className="min-w-0">
-        <div className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <div className="mb-2 flex items-center gap-2 text-[10px] text-slate-500">
-              <span>Character Stats</span><ChevronRight className="h-3 w-3" /><span className="text-slate-300">{draft.name}</span>
+        <MagicCard glowColor="indigo" intensity={3} interactive={false} className="p-6 mb-5">
+          <div className="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-[10px] text-slate-500">
+                <span>Character Stats</span><ChevronRight className="h-3 w-3" /><span className="text-slate-300">{draft.name}</span>
+              </div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Character Configuration</p>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight text-white">Chi tiết nhân vật.</h1>
+              <p className="mt-1 text-xs text-slate-400">Thiết lập các chỉ số và khả năng di chuyển của nhân vật.</p>
+              {detailLoading && <p role="status" className="mt-2 text-[10px] text-cyan-300">Đang tải chi tiết nhân vật...</p>}
+              {detailError && (
+                <p role="alert" className="mt-2 flex items-center gap-2 text-[10px] text-rose-300">
+                  {detailError}
+                  <button type="button" onClick={() => setDetailRetry((retry) => retry + 1)} className="underline underline-offset-2 hover:text-white">
+                    Thử lại
+                  </button>
+                </p>
+              )}
             </div>
-            <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">Character Configuration</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-white">Chi tiết nhân vật.</h1>
-            <p className="mt-1 text-xs text-slate-400">Thiết lập các chỉ số và khả năng di chuyển của nhân vật.</p>
-            {detailLoading && <p role="status" className="mt-2 text-[10px] text-cyan-300">Đang tải chi tiết nhân vật...</p>}
-            {detailError && (
-              <p role="alert" className="mt-2 flex items-center gap-2 text-[10px] text-rose-300">
-                {detailError}
-                <button type="button" onClick={() => setDetailRetry((retry) => retry + 1)} className="underline underline-offset-2 hover:text-white">
-                  Thử lại
-                </button>
-              </p>
-            )}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={restoreCharacter} className="inline-flex h-9 items-center gap-2 border border-white/10 px-3 text-[11px] font-semibold text-slate-300 transition-colors hover:border-white/25 hover:text-white">
-              <RotateCcw className="h-3.5 w-3.5" />Khôi phục mặc định
-            </button>
-            <button type="button" onClick={exportCharacter} className="inline-flex h-9 items-center gap-2 bg-yellow-400 px-3 text-[11px] font-bold text-slate-950 transition-colors hover:bg-yellow-300">
-              <ArrowDownToLine className="h-3.5 w-3.5" />Xuất cấu hình
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 py-4">
-          <div className="flex flex-wrap gap-1" role="tablist" aria-label="Nhóm cấu hình nhân vật">
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === id}
-                onClick={() => setActiveTab(id)}
-                className={`inline-flex h-9 items-center gap-2 border-b-2 px-3 text-[11px] font-semibold transition-colors ${activeTab === id ? 'border-yellow-400 text-yellow-300' : 'border-transparent text-slate-500 hover:text-slate-200'}`}
-              >
-                <Icon className="h-3.5 w-3.5" />{label}
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={restoreCharacter} className="inline-flex h-9 items-center gap-2 border border-white/10 px-3 text-[11px] font-semibold text-slate-300 transition-colors hover:border-white/25 hover:text-white">
+                <RotateCcw className="h-3.5 w-3.5" />Khôi phục mặc định
               </button>
-            ))}
+              <button type="button" onClick={exportCharacter} className="inline-flex h-9 items-center gap-2 bg-yellow-400 px-3 text-[11px] font-bold text-slate-950 transition-colors hover:bg-yellow-300">
+                <ArrowDownToLine className="h-3.5 w-3.5" />Xuất cấu hình
+              </button>
+            </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-[10px] text-slate-500"><ShieldCheck className="h-3.5 w-3.5" />{draft.primaryStatName || 'Cấu hình nhân vật'}</span>
-        </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 py-4">
+            <div className="flex flex-wrap gap-1" role="tablist" aria-label="Nhóm cấu hình nhân vật">
+              {tabs.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === id}
+                  onClick={() => setActiveTab(id)}
+                  className={`inline-flex h-9 items-center gap-2 border-b-2 px-3 text-[11px] font-semibold transition-colors ${activeTab === id ? 'border-yellow-400 text-yellow-300' : 'border-transparent text-slate-500 hover:text-slate-200'}`}
+                >
+                  <Icon className="h-3.5 w-3.5" />{label}
+                </button>
+              ))}
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-[10px] text-slate-500"><ShieldCheck className="h-3.5 w-3.5" />{draft.primaryStatName || 'Cấu hình nhân vật'}</span>
+          </div>
+        </MagicCard>
 
         <div className="space-y-5 pt-5">
           {filteredAttributes.length > 0 && (

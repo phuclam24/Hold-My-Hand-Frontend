@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { profileApi } from '@/api'
-import { Card } from '@/components/ui'
+import { MagicCard } from '@/components/ui'
 import { History, Trophy, Clock, Target, Gamepad2 } from 'lucide-react'
 import type { GameHistoryResponse, GameHistoryItem } from '@/types'
 
@@ -58,9 +58,17 @@ export default function PortalHistory() {
         {stats.map((s) => {
           const Icon = s.icon
           return (
-            <div
+            <MagicCard
               key={s.label}
-              className="relative overflow-hidden bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-5"
+              glowColor={
+                s.gradient.includes('pink') || s.gradient.includes('rose')
+                  ? 'rose'
+                  : s.gradient.includes('amber')
+                  ? 'amber'
+                  : 'indigo'
+              }
+              intensity={3}
+              className="relative overflow-hidden p-5"
             >
               <div
                 className={`absolute -right-4 -top-4 w-20 h-20 rounded-full bg-gradient-to-br ${s.gradient} opacity-20 blur-2xl`}
@@ -74,13 +82,13 @@ export default function PortalHistory() {
                 <p className="text-2xl font-bold text-white">{s.value}</p>
                 <p className="text-xs text-purple-200 mt-0.5">{s.label}</p>
               </div>
-            </div>
+            </MagicCard>
           )
         })}
       </div>
 
       {/* History list */}
-      <Card className="bg-white/5 backdrop-blur-xl border-white/10 p-0 overflow-hidden">
+      <MagicCard glowColor="rose" intensity={3} interactive={false} className="overflow-hidden !p-0">
         <div className="px-6 py-4 border-b border-white/10 flex items-center gap-3">
           <History className="w-5 h-5 text-pink-400" />
           <h2 className="font-semibold text-white">Trận đấu gần đây</h2>
@@ -99,7 +107,7 @@ export default function PortalHistory() {
             ))}
           </div>
         )}
-      </Card>
+      </MagicCard>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { accountsApi } from '@/api'
+import { MagicCard } from '@/components/ui'
 import { Search, FileText, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { ModActionLog } from '@/types'
 
@@ -49,7 +50,7 @@ export default function AuditLogs() {
         </div>
       </div>
 
-      <div className="bg-[#111622]/90 border border-slate-800/80 rounded-xl shadow-xl overflow-hidden">
+      <MagicCard glowColor="indigo" intensity={3} interactive={false} className="overflow-hidden !p-0">
         <div className="px-6 py-4 border-b border-slate-800/60 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between bg-slate-900/40">
           <div className="flex items-center gap-2.5">
             <FileText className="w-4 h-4 text-amber-400" />
@@ -167,7 +168,7 @@ export default function AuditLogs() {
             </div>
           </div>
         )}
-      </div>
+      </MagicCard>
     </div>
   )
 }

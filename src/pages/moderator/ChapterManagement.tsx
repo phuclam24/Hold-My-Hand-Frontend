@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { chaptersApi } from '@/api'
+import { MagicCard } from '@/components/ui'
 import { BookOpen } from 'lucide-react'
 import type { Chapter } from '@/types'
 
@@ -33,18 +34,20 @@ export default function ChapterManagement() {
           Đang tải dữ liệu chapter...
         </div>
       ) : chapters.length === 0 ? (
-        <div className="p-12 text-center bg-[#0c1019] border border-white/10 rounded-2xl">
+        <MagicCard glowColor="amber" intensity={3} interactive={false} className="p-12 text-center">
           <BookOpen className="w-12 h-12 text-slate-600 mx-auto mb-3" />
           <p className="text-slate-400 text-sm">Chưa có chapter nào</p>
-        </div>
+        </MagicCard>
       ) : (
         <div className="space-y-4">
           {chapters
             .sort((a, b) => a.orderIndex - b.orderIndex)
             .map((chapter) => (
-              <div
+              <MagicCard
                 key={chapter.id}
-                className="p-6 bg-[#0c1019] border border-white/10 hover:border-yellow-400/30 rounded-2xl transition-all duration-300 flex items-start sm:items-center gap-5"
+                glowColor="amber"
+                intensity={3}
+                className="p-6 flex items-start sm:items-center gap-5"
               >
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-yellow-500/20 to-amber-500/10 border border-yellow-500/30 flex items-center justify-center text-yellow-400 font-extrabold text-xl flex-shrink-0 font-mono">
                   {chapter.orderIndex}
@@ -58,7 +61,7 @@ export default function ChapterManagement() {
                     </span>
                   </div>
                 </div>
-              </div>
+              </MagicCard>
             ))}
         </div>
       )}

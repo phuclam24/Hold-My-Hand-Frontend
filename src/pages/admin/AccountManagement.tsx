@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
 import { accountsApi } from '@/api'
-import {
-  Button,
-  Modal,
-} from '@/components/ui'
+import { Button, Modal, MagicCard } from '@/components/ui'
 import { useNotificationStore } from '@/stores'
 import { formatDate } from '@/utils'
 import {
@@ -170,7 +167,7 @@ export default function AccountManagement() {
         </Button>
       </div>
 
-      <div className="bg-[#111622]/90 border border-slate-800/80 rounded-xl shadow-xl overflow-hidden">
+      <MagicCard glowColor="indigo" intensity={3} className="overflow-hidden !p-0">
         {/* Toolbar */}
         <div className="px-6 py-4 border-b border-slate-800/60 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-900/40">
           <div className="relative flex-1 max-w-md">
@@ -347,7 +344,7 @@ export default function AccountManagement() {
             </div>
           </div>
         )}
-      </div>
+      </MagicCard>
 
       {/* Action Modal */}
       <Modal

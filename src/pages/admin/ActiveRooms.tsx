@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { roomsApi } from '@/api'
+import { MagicCard } from '@/components/ui'
 import { Activity, Clock, Users, RefreshCw } from 'lucide-react'
 import type { ActiveRoom } from '@/types'
 
@@ -52,7 +53,7 @@ export default function ActiveRooms() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#111622]/90 border border-slate-800/80 p-4 rounded-xl shadow-lg">
+        <MagicCard glowColor="cyan" intensity={3} className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-400">Tổng phòng</p>
@@ -62,8 +63,8 @@ export default function ActiveRooms() {
               <Activity className="w-4 h-4" />
             </div>
           </div>
-        </div>
-        <div className="bg-[#111622]/90 border border-slate-800/80 p-4 rounded-xl shadow-lg">
+        </MagicCard>
+        <MagicCard glowColor="amber" intensity={3} className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-400">Đang chờ</p>
@@ -73,8 +74,8 @@ export default function ActiveRooms() {
               <Clock className="w-4 h-4" />
             </div>
           </div>
-        </div>
-        <div className="bg-[#111622]/90 border border-slate-800/80 p-4 rounded-xl shadow-lg">
+        </MagicCard>
+        <MagicCard glowColor="indigo" intensity={3} className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-400">Sẵn sàng</p>
@@ -84,8 +85,8 @@ export default function ActiveRooms() {
               <Users className="w-4 h-4" />
             </div>
           </div>
-        </div>
-        <div className="bg-[#111622]/90 border border-slate-800/80 p-4 rounded-xl shadow-lg">
+        </MagicCard>
+        <MagicCard glowColor="emerald" intensity={3} className="p-4">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-slate-400">Đang chơi</p>
@@ -95,10 +96,10 @@ export default function ActiveRooms() {
               <Activity className="w-4 h-4" />
             </div>
           </div>
-        </div>
+        </MagicCard>
       </div>
 
-      <div className="bg-[#111622]/90 border border-slate-800/80 rounded-xl shadow-xl overflow-hidden">
+      <MagicCard glowColor="indigo" intensity={3} interactive={false} className="overflow-hidden !p-0">
         <div className="px-6 py-4 border-b border-slate-800/60 bg-slate-900/40">
           <h3 className="font-bold text-white text-sm">Danh sách phòng đang mở</h3>
         </div>
@@ -194,7 +195,7 @@ export default function ActiveRooms() {
             </tbody>
           </table>
         </div>
-      </div>
+      </MagicCard>
     </div>
   )
 }

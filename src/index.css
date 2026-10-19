@@ -55,6 +55,259 @@
   animation-delay: 4s;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* === Cosmic animations === */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+}
+.animate-twinkle {
+  animation: twinkle var(--tw-duration, 3s) ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.08);
+  }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}
+.animate-pulse-slower {
+  animation: pulse-slow 12s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+@keyframes shooting-star {
+  0% {
+    transform: translate(0, 0) rotate(-35deg);
+    opacity: 0;
+  }
+  5% { opacity: 1; }
+  20% {
+    transform: translate(420px, 280px) rotate(-35deg);
+    opacity: 0;
+  }
+  100% { opacity: 0; }
+}
+.shooting-star {
+  position: absolute;
+  width: 140px;
+  height: 1.5px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(165,243,252,0.6), transparent);
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(165,243,252,0.8);
+  transform: rotate(-35deg);
+  animation: shooting-star 12s linear infinite;
+}
+
+@keyframes shooting-star-gold {
+  0% {
+    transform: translate(0, 0) rotate(-35deg);
+    opacity: 0;
+  }
+  5% { opacity: 1; }
+  18% {
+    transform: translate(460px, 320px) rotate(-35deg);
+    opacity: 0;
+  }
+  100% { opacity: 0; }
+}
+.shooting-star-gold {
+  position: absolute;
+  width: 160px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(252,211,77,1), rgba(251,191,36,0.7), transparent);
+  border-radius: 999px;
+  box-shadow: 0 0 12px rgba(252,211,77,0.9), 0 0 24px rgba(251,191,36,0.4);
+  transform: rotate(-35deg);
+  animation: shooting-star-gold 14s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: float-y 4s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(139,92,246,0.35); }
+  50% { box-shadow: 0 0 28px rgba(139,92,246,0.7); }
+}
+.animate-glow {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Glass card (dùng cho content cards) */
+.glass-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+  border-radius: 1rem;
+}
+.glass-card:hover {
+  border-color: rgba(167,139,250,0.25);
+}
+
+/* Magic gradient text */
+.text-magic {
+  background: linear-gradient(90deg, #c4b5fd 0%, #67e8f9 50%, #c4b5fd 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+/* === Cinematic Landing Animations === */
+@keyframes radar-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+.animate-radar {
+  animation: radar-pulse 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes border-run {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+.animate-border-run {
+  background: linear-gradient(
+    90deg,
+    rgba(243, 178, 46, 0) 0%,
+    rgba(243, 178, 46, 0.9) 25%,
+    rgba(255, 197, 41, 0.9) 50%,
+    rgba(243, 178, 46, 0) 75%,
+    rgba(243, 178, 46, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: border-run 3s linear infinite;
+}
+
+@keyframes fog-drift {
+  0%, 100% { transform: translateX(0); opacity: 0.45; }
+  50% { transform: translateX(20px); opacity: 0.65; }
+}
+.animate-fog {
+  animation: fog-drift 18s ease-in-out infinite;
+}
+
+@keyframes ember-rise {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  20% { opacity: 0.9; }
+  100% {
+    transform: translateY(-120vh) translateX(40px);
+    opacity: 0;
+  }
+}
+.animate-ember {
+  animation: ember-rise linear infinite;
+}
+
+@keyframes bolt-pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(243,178,46,0.4)); }
+  50% { transform: scale(1.18); filter: drop-shadow(0 0 14px rgba(243,178,46,0.95)); }
+}
+.animate-bolt {
+  animation: bolt-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tv-flicker {
+  0%, 100% { opacity: 1; }
+  47% { opacity: 1; }
+  48% { opacity: 0.4; }
+  50% { opacity: 1; }
+  52% { opacity: 0.6; }
+  54% { opacity: 1; }
+}
+.animate-tv-flicker {
+  animation: tv-flicker 4s ease-in-out infinite;
+}
+
+@keyframes friend-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.animate-friend {
+  animation: friend-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes card-border-glow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(243,178,46,0.5), 0 12px 36px -10px rgba(243,178,46,0.35); }
+  50% { box-shadow: 0 0 0 1px rgba(255,197,41,0.9), 0 16px 48px -8px rgba(255,197,41,0.65); }
+}
+.animate-card-glow {
+  animation: card-border-glow 2.4s ease-in-out infinite;
+}
+
+/* Hide native cursor when game cursor active (desktop only) */
+.cursor-game canvas,
+.cursor-game button,
+.cursor-game a {
+  cursor: none;
+}
+
 /* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 8px;
