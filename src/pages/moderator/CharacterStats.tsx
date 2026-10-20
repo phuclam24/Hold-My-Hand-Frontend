@@ -3,13 +3,11 @@ import { charactersApi } from '@/api'
 import { MagicCard } from '@/components/ui'
 import {
   Activity,
-  ArrowDownToLine,
   ChevronRight,
   CircleGauge,
   Footprints,
   Heart,
   LoaderCircle,
-  RotateCcw,
   Save,
   ShieldCheck,
   Sparkles,
@@ -180,11 +178,6 @@ export default function CharacterStats() {
     )
   }
 
-  const restoreCharacter = () => {
-    const original = characters.find((character) => character.id === selectedId)
-    if (original) setDraft(cloneCharacter(original))
-  }
-
   const saveCharacter = async () => {
     if (!draft || saving || deleting) return
 
@@ -222,17 +215,6 @@ export default function CharacterStats() {
     } finally {
       setDeleting(false)
     }
-  }
-
-  const exportCharacter = () => {
-    if (!draft) return
-    const blob = new Blob([JSON.stringify(draft, null, 2)], { type: 'application/json' })
-    const downloadUrl = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = downloadUrl
-    link.download = `${draft.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-config.json`
-    link.click()
-    URL.revokeObjectURL(downloadUrl)
   }
 
   const tabs: { id: CharacterTab; label: string; icon: typeof Activity }[] = [
@@ -338,20 +320,14 @@ export default function CharacterStats() {
                 </p>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={saveCharacter} disabled={saving || deleting} className="inline-flex h-9 items-center gap-2 bg-yellow-400 px-3 text-[11px] font-bold text-slate-950 transition-colors hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50">
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={saveCharacter} disabled={saving || deleting} className="inline-flex h-9 items-center gap-2 rounded-md bg-yellow-400 px-3 text-[11px] font-bold text-slate-950 transition-colors hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50">
                 {saving ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
                 {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
               </button>
-              <button type="button" onClick={deleteCharacter} disabled={saving || deleting} className="inline-flex h-9 items-center gap-2 border border-rose-400/30 px-3 text-[11px] font-semibold text-rose-300 transition-colors hover:border-rose-400/60 hover:bg-rose-400/10 disabled:cursor-not-allowed disabled:opacity-50">
+              <button type="button" onClick={deleteCharacter} disabled={saving || deleting} className="inline-flex h-9 items-center gap-2 rounded-md border border-rose-400/30 px-3 text-[11px] font-semibold text-rose-300 transition-colors hover:border-rose-400/60 hover:bg-rose-400/10 disabled:cursor-not-allowed disabled:opacity-50">
                 {deleting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                 {deleting ? 'Đang xóa...' : 'Xóa nhân vật'}
-              </button>
-              <button type="button" onClick={restoreCharacter} className="inline-flex h-9 items-center gap-2 border border-white/10 px-3 text-[11px] font-semibold text-slate-300 transition-colors hover:border-white/25 hover:text-white">
-                <RotateCcw className="h-3.5 w-3.5" />Khôi phục mặc định
-              </button>
-              <button type="button" onClick={exportCharacter} className="inline-flex h-9 items-center gap-2 bg-yellow-400 px-3 text-[11px] font-bold text-slate-950 transition-colors hover:bg-yellow-300">
-                <ArrowDownToLine className="h-3.5 w-3.5" />Xuất cấu hình
               </button>
             </div>
           </div>
@@ -466,7 +442,7 @@ export default function CharacterStats() {
           )}
 
           <div className="flex items-center gap-2 border-t border-white/[0.07] pt-3 text-[10px] text-slate-500">
-            <CircleGauge className="h-3.5 w-3.5" />Lưu thay đổi để cập nhật cấu hình trên máy chủ; xuất cấu hình để tải JSON.
+            <CircleGauge className="h-3.5 w-3.5" />Lưu thay đổi để cập nhật cấu hình trên máy chủ.
           </div>
         </div>
       </section>
