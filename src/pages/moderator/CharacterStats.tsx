@@ -3,18 +3,20 @@ import { charactersApi } from '@/api'
 import { MagicCard } from '@/components/ui'
 import {
   Activity,
-  ArrowDownToLine,
   ChevronRight,
   CircleGauge,
   Footprints,
   Heart,
-  RotateCcw,
+  LoaderCircle,
+  Save,
   ShieldCheck,
   Sparkles,
+  Trash2,
   UserRound,
   Zap,
 } from 'lucide-react'
 import type { Character, CharacterAttribute, CharacterMovement } from '@/types'
+import { notify } from '@/lib/toast'
 
 type CharacterTab = 'all' | 'vitals' | 'movement'
 type NumericAttributeKey = 'startingValue' | 'maxValue' | 'regenRate' | 'regenDelay'
@@ -108,6 +110,8 @@ export default function CharacterStats() {
   const [detailError, setDetailError] = useState('')
   const [detailRetry, setDetailRetry] = useState(0)
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     charactersApi
@@ -174,20 +178,43 @@ export default function CharacterStats() {
     )
   }
 
-  const restoreCharacter = () => {
-    const original = characters.find((character) => character.id === selectedId)
-    if (original) setDraft(cloneCharacter(original))
+  const saveCharacter = async () => {
+    if (!draft || saving || deleting) return
+
+    setSaving(true)
+    try {
+      const { id, ...data } = draft
+      const updated = await charactersApi.update(id, data)
+      setCharacters((current) => current.map((character) => (character.id === id ? updated : character)))
+      setDraft(cloneCharacter(updated))
+      notify.success('Đã cập nhật cấu hình nhân vật.')
+    } catch (saveError) {
+      console.error(saveError)
+      notify.error('Không thể cập nhật cấu hình nhân vật.')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const exportCharacter = () => {
-    if (!draft) return
-    const blob = new Blob([JSON.stringify(draft, null, 2)], { type: 'application/json' })
-    const downloadUrl = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = downloadUrl
-    link.download = `${draft.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-config.json`
-    link.click()
-    URL.revokeObjectURL(downloadUrl)
+  const deleteCharacter = async () => {
+    if (!draft || saving || deleting) return
+    if (!window.confirm(`Bạn có chắc muốn xóa nhân vật "${draft.name}"?`)) return
+
+    setDeleting(true)
+    try {
+      await charactersApi.delete(draft.id)
+      const remainingCharacters = characters.filter((character) => character.id !== draft.id)
+      setCharacters(remainingCharacters)
+      const nextCharacter = remainingCharacters[0]
+      setSelectedId(nextCharacter?.id ?? '')
+      setDraft(nextCharacter ? cloneCharacter(nextCharacter) : null)
+      notify.success('Đã xóa nhân vật.')
+    } catch (deleteError) {
+      console.error(deleteError)
+      notify.error('Không thể xóa nhân vật.')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   const tabs: { id: CharacterTab; label: string; icon: typeof Activity }[] = [
@@ -293,12 +320,14 @@ export default function CharacterStats() {
                 </p>
               )}
             </div>
-            <div className="flex flex-wrap gap-2">
-              <button type="button" onClick={restoreCharacter} className="inline-flex h-9 items-center gap-2 border border-white/10 px-3 text-[11px] font-semibold text-slate-300 transition-colors hover:border-white/25 hover:text-white">
-                <RotateCcw className="h-3.5 w-3.5" />Khôi phục mặc định
+            <div className="flex flex-wrap items-center gap-2">
+              <button type="button" onClick={saveCharacter} disabled={saving || deleting} className="inline-flex h-9 items-center gap-2 rounded-md bg-yellow-400 px-3 text-[11px] font-bold text-slate-950 transition-colors hover:bg-yellow-300 disabled:cursor-not-allowed disabled:opacity-50">
+                {saving ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
               </button>
-              <button type="button" onClick={exportCharacter} className="inline-flex h-9 items-center gap-2 bg-yellow-400 px-3 text-[11px] font-bold text-slate-950 transition-colors hover:bg-yellow-300">
-                <ArrowDownToLine className="h-3.5 w-3.5" />Xuất cấu hình
+              <button type="button" onClick={deleteCharacter} disabled={saving || deleting} className="inline-flex h-9 items-center gap-2 rounded-md border border-rose-400/30 px-3 text-[11px] font-semibold text-rose-300 transition-colors hover:border-rose-400/60 hover:bg-rose-400/10 disabled:cursor-not-allowed disabled:opacity-50">
+                {deleting ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                {deleting ? 'Đang xóa...' : 'Xóa nhân vật'}
               </button>
             </div>
           </div>
@@ -413,7 +442,7 @@ export default function CharacterStats() {
           )}
 
           <div className="flex items-center gap-2 border-t border-white/[0.07] pt-3 text-[10px] text-slate-500">
-            <CircleGauge className="h-3.5 w-3.5" />Thay đổi hiện tại chỉ nằm trên trang này; dùng Xuất cấu hình để tải JSON.
+            <CircleGauge className="h-3.5 w-3.5" />Lưu thay đổi để cập nhật cấu hình trên máy chủ.
           </div>
         </div>
       </section>

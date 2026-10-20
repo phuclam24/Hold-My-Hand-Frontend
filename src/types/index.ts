@@ -221,6 +221,29 @@ export interface Quest {
   orderIndex: number
   chapterId: string
   isActive?: boolean
+  slug?: string
+  objectives?: QuestObjective[]
+  goals?: QuestObjective[]
+  rewards?: QuestRewards
+  expReward?: number
+  experienceReward?: number
+  goldReward?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface QuestObjective {
+  id?: string
+  name?: string
+  title?: string
+  description?: string
+  orderIndex?: number
+}
+
+export interface QuestRewards {
+  exp?: number
+  experience?: number
+  gold?: number
 }
 
 // ─── API Helpers ────────────────────────────────────────────────

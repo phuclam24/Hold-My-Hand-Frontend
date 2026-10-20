@@ -15,6 +15,7 @@ import ModDashboard from './pages/moderator/Dashboard'
 import CharacterStats from './pages/moderator/CharacterStats'
 import ChapterManagement from './pages/moderator/ChapterManagement'
 import QuestManagement from './pages/moderator/QuestManagement'
+import QuestDetail from './pages/moderator/QuestDetail'
 
 function ProtectedRoute({
   children,
@@ -92,6 +93,7 @@ function App() {
         <Route path="characters" element={<CharacterStats />} />
         <Route path="chapters" element={<ChapterManagement />} />
         <Route path="quests" element={<QuestManagement />} />
+        <Route path="quests/:id" element={<QuestDetail />} />
       </Route>
 
       {/* Fallback to homepage */}
