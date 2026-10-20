@@ -95,7 +95,7 @@ export default function AuditLogs() {
                 <th className="px-6 py-3">Thời gian</th>
                 <th className="px-6 py-3">Hành động</th>
                 <th className="px-6 py-3">Loại đối tượng</th>
-                <th className="px-6 py-3">Admin ID</th>
+                <th className="px-6 py-3">Mod ID</th>
                 <th className="px-6 py-3">Target ID</th>
               </tr>
             </thead>

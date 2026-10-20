@@ -20,7 +20,7 @@ export default function Layout() {
     { path: '/admin', label: 'Tổng quan', icon: LayoutGrid, exact: true },
     { path: '/admin/accounts', label: 'Người chơi', icon: Users },
     { path: '/admin/rooms', label: 'Phòng co-op', icon: Gamepad2 },
-    { path: '/admin/audit-logs', label: 'Nhật ký hệ thống', icon: FileText },
+    { path: '/admin/audit-logs', label: 'Hoạt động Mod', icon: FileText },
   ]
 
   return (
