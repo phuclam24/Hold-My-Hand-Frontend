@@ -5,7 +5,6 @@ import {
   User,
   History,
   Gamepad2,
-  Mountain,
 } from 'lucide-react'
 import { useState } from 'react'
 import Sidebar from './Sidebar'
@@ -35,7 +34,7 @@ export default function PortalLayout() {
 
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-amber-500/15 bg-[#0a0805]/80 px-4 backdrop-blur-md lg:hidden">
         <div className="flex items-center gap-2">
-          <Mountain className="h-5 w-5 text-amber-300" />
+          <img src="/logo.jpg" alt="Hold My Hand" className="h-8 w-8 rounded-lg object-cover" />
           <span className="text-xs font-extrabold tracking-wide text-white">
             HOLD MY HAND
           </span>
@@ -66,7 +65,6 @@ export default function PortalLayout() {
         >
           <Sidebar
             brand={{ title: 'Hold My Hand', subtitle: 'Co-op Portal' }}
-            brandIcon={Mountain}
             navItems={menuItems}
             user={user}
             onLogout={handleLogout}

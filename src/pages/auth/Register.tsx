@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores'
 import { notify } from '@/lib/toast'
-import { Mail, Lock, User, Sparkles, UserPlus } from 'lucide-react'
+import { Mail, Lock, User, UserPlus } from 'lucide-react'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -113,11 +113,10 @@ export default function Register() {
       <div className="relative z-10 w-full max-w-md mx-4 px-4">
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center gap-2 mb-2">
-            <Sparkles className="w-6 h-6 text-amber-400" />
+            <img src="/logo.jpg" alt="Hold My Hand" className="h-12 w-12 rounded-xl object-cover shadow-lg" />
             <span className="text-xl font-black bg-gradient-to-r from-amber-300 via-orange-400 to-pink-400 bg-clip-text text-transparent">
               Hold My Hand
             </span>
-            <Sparkles className="w-6 h-6 text-amber-400" />
           </div>
           <h1 className="text-3xl font-black text-white">Create Account</h1>
           <p className="text-slate-400 text-sm mt-1">Start your journey today</p>

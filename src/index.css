@@ -301,13 +301,6 @@
   animation: card-border-glow 2.4s ease-in-out infinite;
 }
 
-/* Hide native cursor when game cursor active (desktop only) */
-.cursor-game canvas,
-.cursor-game button,
-.cursor-game a {
-  cursor: none;
-}
-
 /* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 8px;

@@ -12,7 +12,6 @@ interface NavItem {
 
 interface SidebarProps {
   brand?: any
-  brandIcon?: LucideIcon
   navItems: NavItem[]
   user?: any
   onLogout?: () => void
@@ -23,7 +22,6 @@ interface SidebarProps {
 
 export default function Sidebar({
   brand,
-  brandIcon: BrandIcon,
   navItems,
   user,
   onLogout,
@@ -102,21 +100,10 @@ export default function Sidebar({
 
       <div className="relative flex h-16 items-center gap-3 border-b border-amber-500/15 px-4">
         <div className="relative shrink-0 group">
-          {BrandIcon ? (
-            <div className="relative">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 via-yellow-500 to-amber-600 ring-1 ring-amber-300/30 shadow-[0_0_24px_rgba(251,191,36,0.55)] animate-float">
-                <BrandIcon className="h-5 w-5 text-amber-950" />
-              </div>
-              {/* Radar pulse behind brand icon */}
-              <span className="absolute inset-0 rounded-xl border border-amber-400/40 animate-radar pointer-events-none" />
-            </div>
-          ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 ring-1 ring-amber-300/30 shadow-[0_0_24px_rgba(251,191,36,0.55)] text-amber-950 font-extrabold text-sm">
-              {(typeof brand === 'string' ? brand : brand?.title)
-                ?.charAt(0)
-                ?.toUpperCase() || 'H'}
-            </div>
-          )}
+          <div className="relative h-10 w-10 overflow-hidden rounded-xl ring-1 ring-amber-300/40 shadow-[0_0_24px_rgba(251,191,36,0.35)] animate-float">
+            <img src="/logo.jpg" alt="Hold My Hand" className="h-full w-full object-cover" />
+            <span className="absolute inset-0 rounded-xl border border-amber-400/30 animate-radar pointer-events-none" />
+          </div>
           <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-[#0a0a0a] shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
         </div>
         {!collapsed && (

@@ -1,21 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { motion } from 'framer-motion'
 import VanillaTilt from 'vanilla-tilt'
 import { useAuthStore } from '@/stores'
 import {
   Gamepad2,
-  Play,
-  Pause,
-  ChevronLeft,
-  ArrowDown,
   ArrowRight,
   X,
   Lock,
   Mail,
   Eye,
   EyeOff,
-  Heart,
   LogOut,
   Users,
   Tv,
@@ -24,52 +19,33 @@ import {
 } from 'lucide-react'
 import { notify } from '@/lib/toast'
 import ParticleCanvas from '@/components/landing/ParticleCanvas'
-import GameCursor from '@/components/landing/GameCursor'
 import GlassHeader from '@/components/landing/GlassHeader'
 import Mounted from '@/components/landing/Mounted'
 
 // ──────────────────────────────────────────────────────────────────────────
-// Hero Slides — Vietnamese copy kept exactly as in reference imagery
+// Homepage hero banner
 // ──────────────────────────────────────────────────────────────────────────
-const HERO_SLIDES = [
-  {
-    id: '01',
-    navLabel: 'Vũ trụ',
-    tagline: 'KHÔNG CHỈ LÀ MỘT TRÒ CHƠI',
-    titleLine1: 'Hai người.',
-    titleLine2: 'Vô vàn thế giới.',
-    description:
-      'Một người bạn. Một cuộc phiêu lưu. Cùng bước vào những thế giới nơi trí tưởng tượng không có giới hạn.',
-    bgImage: '/banner_cosmic.jpg',
-    accent: 'cosmic',
-  },
-  {
-    id: '02',
-    navLabel: 'Khu vườn',
-    tagline: 'KHÔNG CHỈ LÀ MỘT TRÒ CHƠI',
-    titleLine1: 'Nhỏ bé.',
-    titleLine2: 'Kỳ diệu.',
-    description:
-      'Đi qua những chiếc lá khổng lồ, tìm thấy những điều kỳ diệu trong những điều nhỏ bé. Hành trình đẹp hơn khi có nhau.',
-    bgImage: '/world-secret-garden.png',
-    accent: 'garden',
-  },
-  {
-    id: '03',
-    navLabel: 'Tuyết trắng',
-    tagline: 'KHÔNG CHỈ LÀ MỘT TRÒ CHƠI',
-    titleLine1: 'Cùng nhau.',
-    titleLine2: 'Đi xa hơn.',
-    description:
-      'Giữa những mái nhà phủ tuyết và ánh đèn ấm áp, một câu chuyện mới đang chờ hai bạn viết tiếp.',
-    bgImage: '/hero-mountain-night.jpg',
-    accent: 'snow',
-  },
-]
+const HERO_BANNER = {
+  tagline: 'KHÔNG CHỈ LÀ MỘT TRÒ CHƠI',
+  titleLine1: 'Một thế giới.',
+  titleLine2: 'Hai người bạn.',
+  description:
+    'Cùng nhau khám phá những miền đất kỳ diệu, nơi mỗi thử thách đều vui hơn khi có một người bạn bên cạnh.',
+  bgImage: '/banner_castle.jpg',
+}
 
 const GAME_WORLDS = [
   {
     id: '01',
+    title: 'Lều đồ chơi diệu kỳ',
+    tag: 'PHIÊU LƯU · TƯỞNG TƯỢNG',
+    image: '/banner_castle.jpg',
+    description:
+      'Một vương quốc nhỏ được dựng nên từ chăn gối, khối gỗ và trí tưởng tượng của hai người bạn.',
+    accent: 'toybox',
+  },
+  {
+    id: '02',
     title: 'Vũ trụ kỳ diệu',
     tag: 'PHIÊU LƯU · KHÁM PHÁ',
     image: '/banner_cosmic.jpg',
@@ -78,22 +54,13 @@ const GAME_WORLDS = [
     accent: 'cosmic',
   },
   {
-    id: '02',
+    id: '03',
     title: 'Khu vườn bí mật',
     tag: 'PHIÊU LƯU · THIÊN NHIÊN',
     image: '/world-secret-garden.png',
     description:
       'Khu vườn cổ tích ẩn giấu những sinh vật phát sáng giữa rừng cây xanh thẳm.',
     accent: 'garden',
-  },
-  {
-    id: '03',
-    title: 'Thị trấn tuyết',
-    tag: 'PHIÊU LƯU · KỲ ẢO',
-    image: '/hero-mountain-night.jpg',
-    description:
-      'Thị trấn tuyết giữa đêm đông, nơi hành trình mới bắt đầu dưới ánh đèn vàng ấm.',
-    accent: 'snow',
   },
 ]
 
@@ -129,47 +96,25 @@ const COOP_FEATURES = [
 ]
 
 const ACCENT_GRADIENT: Record<string, string> = {
+  toybox: 'from-orange-500 via-amber-500 to-rose-500',
   cosmic: 'from-indigo-500 via-purple-600 to-fuchsia-600',
   garden: 'from-emerald-500 via-teal-600 to-cyan-700',
-  snow: 'from-amber-400 via-orange-500 to-rose-500',
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-// Hero Slide Background (with parallax + canvas overlay)
+// Hero Slide Background
 // ──────────────────────────────────────────────────────────────────────────
-function HeroBackground({
-  image,
-  active,
-  mouseX,
-  mouseY,
-}: {
-  image: string
-  active: boolean
-  mouseX: ReturnType<typeof useMotionValue<number>>
-  mouseY: ReturnType<typeof useMotionValue<number>>
-}) {
-  const sx = useTransform(mouseX, [-1, 1], [-12, 12])
-  const sy = useTransform(mouseY, [-1, 1], [-8, 8])
-  const sxInner = useTransform(mouseX, [-1, 1], [-24, 24])
-  const syInner = useTransform(mouseY, [-1, 1], [-16, 16])
-
+function HeroBackground({ image }: { image: string }) {
   return (
-    <motion.div
-      className={`absolute inset-0 transition-opacity duration-1000 ${
-        active ? 'opacity-100' : 'opacity-0'
-      }`}
-      style={{ x: sx, y: sy }}
-    >
-      <motion.img
+    <div className="absolute inset-0">
+      <img
         src={image}
         alt=""
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ x: sxInner, y: syInner, scale: 1.08 }}
+        className="absolute inset-0 h-full w-full object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0B0E14] via-[#0B0E14]/45 to-black/60" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0B0E14]/85 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(243,178,46,0.06),transparent_55%)]" />
-    </motion.div>
+      <div className="absolute inset-0 bg-gradient-to-t from-[#080a0e]/90 via-[#080a0e]/20 to-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#080a0e]/75 via-[#080a0e]/20 to-transparent" />
+    </div>
   )
 }
 
@@ -370,45 +315,12 @@ export default function LandingHome() {
   const navigate = useNavigate()
   const { isAuthenticated, user, logout, login, isLoading } = useAuthStore()
 
-  const [currentSlide, setCurrentSlide] = useState(2) // Default = slide 03 (Tuyết trắng) as in reference
-  const [isPaused, setIsPaused] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-
-  // Hero mouse parallax (normalized -1..1)
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-  const sx = useSpring(mouseX, { stiffness: 60, damping: 18 })
-  const sy = useSpring(mouseY, { stiffness: 60, damping: 18 })
-
-  useEffect(() => {
-    const onMove = (e: PointerEvent) => {
-      const x = (e.clientX / window.innerWidth) * 2 - 1
-      const y = (e.clientY / window.innerHeight) * 2 - 1
-      mouseX.set(x)
-      mouseY.set(y)
-    }
-    window.addEventListener('pointermove', onMove, { passive: true })
-    return () => window.removeEventListener('pointermove', onMove)
-  }, [mouseX, mouseY])
-
-  // Auto slide
-  useEffect(() => {
-    if (isPaused) return
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length)
-    }, 6500)
-    return () => clearInterval(timer)
-  }, [isPaused])
-
-  const slide = HERO_SLIDES[currentSlide]
-
-  const handlePrevSlide = () =>
-    setCurrentSlide((p) => (p - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)
 
   const handleJoinClick = () => {
     if (isAuthenticated) navigate('/portal/lobby')
@@ -443,15 +355,12 @@ export default function LandingHome() {
 
   return (
     <div
-      className="min-h-screen bg-[#0B0E14] text-slate-100 font-sans selection:bg-amber-400 selection:text-slate-950 overflow-x-hidden cursor-game"
+      className="min-h-screen overflow-x-hidden bg-[#0B0E14] font-sans text-slate-100 selection:bg-amber-400 selection:text-slate-950"
     >
-      <GameCursor enabled={true} />
-
-      {/* Layer 1: Hero with parallax + canvas particles */}
+      {/* Layer 1: Full-screen game banner */}
       <GlassHeader
         onMenu={() => setMenuOpen(!menuOpen)}
         authed={isAuthenticated}
-        onJoin={handleJoinClick}
         onLogin={() => navigate('/login')}
       />
 
@@ -540,33 +449,14 @@ export default function LandingHome() {
       {/* Main */}
       <main className="relative z-10">
         {/* ─────────── HERO ─────────── */}
-        <section id="hero" className="relative h-screen w-full flex flex-col justify-between overflow-hidden">
+        <section id="hero" className="relative flex h-[100svh] min-h-[700px] w-full flex-col justify-between overflow-hidden">
           {/* Background layers */}
           <div className="absolute inset-0 z-0">
-            {HERO_SLIDES.map((s, idx) => (
-              <HeroBackground
-                key={s.id}
-                image={s.bgImage}
-                active={currentSlide === idx}
-                mouseX={sx}
-                mouseY={sy}
-              />
-            ))}
-            {/* Particle canvas (snow + embers + shooting stars) */}
-            <ParticleCanvas snowCount={90} embersCount={26} />
-            {/* Cinematic vignette */}
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_45%,rgba(11,14,20,0.75)_100%)]" />
-          </div>
-
-          {/* Animated bottom fog overlay */}
-          <div className="absolute bottom-0 left-0 right-0 h-48 z-[1] pointer-events-none">
-            <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-[#0B0E14] via-[#0B0E14]/80 to-transparent" />
-            <div className="absolute -bottom-8 left-[-10%] right-[-10%] h-32 bg-amber-200/5 blur-3xl animate-fog rounded-full" />
-            <div className="absolute -bottom-12 left-[20%] right-[10%] h-24 bg-indigo-300/5 blur-3xl animate-fog rounded-full animation-delay-2000" />
+            <HeroBackground image={HERO_BANNER.bgImage} />
           </div>
 
           {/* Hero text */}
-          <div className="relative z-10 w-full px-8 md:px-12 lg:px-16 pt-32 flex-1 flex flex-col justify-center">
+          <div className="relative z-10 flex w-full flex-1 flex-col justify-center px-6 pb-12 pt-28 sm:px-10 md:px-12 lg:px-16">
             <div className="max-w-3xl space-y-6">
               <Mounted delay={0.1}>
                 <div className="inline-flex items-center gap-3">
@@ -576,46 +466,33 @@ export default function LandingHome() {
                     className="h-0.5 bg-amber-400 rounded-full shadow-[0_0_8px_rgba(255,197,41,0.8)]"
                   />
                   <span className="text-[11px] sm:text-xs font-bold tracking-[0.22em] text-amber-300 uppercase">
-                    {slide.tagline}
+                    {HERO_BANNER.tagline}
                   </span>
                 </div>
               </Mounted>
 
               <motion.h1
-                key={slide.id}
-                initial={{ opacity: 0, y: 50, letterSpacing: '-0.06em' }}
-                animate={{ opacity: 1, y: 0, letterSpacing: '-0.02em' }}
+                initial={{ opacity: 0, y: 36, letterSpacing: '0' }}
+                animate={{ opacity: 1, y: 0, letterSpacing: '0' }}
                 transition={{ duration: 1, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="text-6xl sm:text-7xl md:text-8xl lg:text-[120px] font-[700] text-white tracking-[-0.02em] leading-[1.05]"
+                className="text-5xl font-[700] leading-[1.05] text-white sm:text-6xl md:text-7xl lg:text-8xl"
                 style={{ textShadow: '0 4px 36px rgba(0,0,0,0.55)' }}
               >
-                {slide.titleLine1}
+                {HERO_BANNER.titleLine1}
                 <br />
                 <span className="bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 bg-clip-text text-transparent">
-                  {slide.titleLine2}
+                  {HERO_BANNER.titleLine2}
                 </span>
               </motion.h1>
 
               <Mounted delay={0.6}>
                 <p className="text-slate-300 text-sm sm:text-base md:text-lg max-w-xl leading-relaxed">
-                  {slide.description}
+                  {HERO_BANNER.description}
                 </p>
               </Mounted>
 
               <Mounted delay={0.8}>
                 <div className="flex flex-wrap items-center gap-4 pt-2">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.93 }}
-                    onClick={handleJoinClick}
-                    className="relative inline-flex items-center gap-3 px-7 py-3.5 bg-amber-400 text-slate-950 text-sm font-extrabold rounded-xl overflow-hidden shadow-[0_0_24px_rgba(243,178,46,0.45)]"
-                  >
-                    <span className="absolute inset-0 -z-10">
-                      <span className="absolute inset-0 rounded-xl bg-amber-400 animate-radar opacity-70" />
-                    </span>
-                    <Gamepad2 className="w-5 h-5 relative z-10" />
-                    <span className="relative z-10">VÀO SẢNH CHƠI</span>
-                  </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.94 }}
@@ -630,73 +507,28 @@ export default function LandingHome() {
             </div>
           </div>
 
-          {/* Bottom controls */}
+          {/* Game information */}
           <Mounted delay={1.0}>
-            <div className="relative z-10 w-full px-8 md:px-12 lg:px-16 pb-12 flex items-center justify-between gap-6">
-              <div className="flex items-center gap-4 text-xs font-bold tracking-wider">
-                {HERO_SLIDES.map((item, idx) => {
-                  const active = currentSlide === idx
-                  return (
-                    <motion.button
-                      key={item.id}
-                      onClick={() => setCurrentSlide(idx)}
-                      whileHover={{ y: -2 }}
-                      className={`flex items-center gap-2 transition-all cursor-pointer ${
-                        active ? 'text-white' : 'text-slate-500 hover:text-slate-300'
-                      }`}
-                    >
-                      <span className="font-mono text-xs">{item.id}</span>
-                      <span className="relative h-0.5 rounded-full overflow-hidden">
-                        <motion.span
-                          animate={{ width: active ? 44 : 24 }}
-                          transition={{ duration: 0.4 }}
-                          className={`block h-0.5 rounded-full ${
-                            active ? 'bg-amber-400' : 'bg-slate-700'
-                          }`}
-                        />
-                      </span>
-                      {active && (
-                        <motion.span
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          className="text-amber-300 font-bold text-xs whitespace-nowrap"
-                        >
-                          {item.navLabel}
-                        </motion.span>
-                      )}
-                    </motion.button>
-                  )
-                })}
+            <div className="relative z-10 flex w-full flex-col gap-5 border-t border-white/20 bg-black/35 px-6 py-5 backdrop-blur-sm sm:px-10 md:flex-row md:items-end md:gap-12 md:px-12 lg:px-16">
+              <div className="min-w-0">
+                <h2 className="mb-3 text-xs font-medium text-slate-300">Genre</h2>
+                <div className="flex flex-wrap gap-2">
+                  {['Action Adventure', 'Platformer'].map((genre) => (
+                    <span key={genre} className="inline-flex min-h-10 items-center rounded-full border border-white/20 px-4 font-mono text-xs text-slate-200 sm:text-sm">
+                      {genre}
+                    </span>
+                  ))}
+                </div>
               </div>
-
-              <div className="flex items-center gap-3">
-                <span className="font-mono text-xs text-amber-300/80 font-semibold mr-3 tracking-wider">
-                  0{currentSlide + 1} / 0{HERO_SLIDES.length}
-                </span>
-                {[
-                  { icon: ChevronLeft, onClick: handlePrevSlide, label: 'Prev' },
-                  {
-                    icon: isPaused ? Play : Pause,
-                    onClick: () => setIsPaused(!isPaused),
-                    label: isPaused ? 'Play' : 'Pause',
-                    fill: true,
-                  },
-                  { icon: ArrowDown, onClick: scrollToWorlds, label: 'Scroll' },
-                ].map((btn) => {
-                  const I = btn.icon
-                  return (
-                    <motion.button
-                      key={btn.label}
-                      onClick={btn.onClick}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.92 }}
-                      aria-label={btn.label}
-                      className="w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 border border-white/20 flex items-center justify-center text-white"
-                    >
-                      <I className={`w-4 h-4 ${btn.fill ? 'fill-white' : ''}`} />
-                    </motion.button>
-                  )
-                })}
+              <div className="min-w-0">
+                <h2 className="mb-3 text-xs font-medium text-slate-300">Platforms</h2>
+                <div className="flex flex-wrap gap-2">
+                  {['PC'].map((platform) => (
+                    <span key={platform} className="inline-flex min-h-10 items-center rounded-full border border-white/20 px-4 font-mono text-xs text-slate-200 sm:text-sm">
+                      {platform}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </Mounted>
@@ -794,6 +626,105 @@ export default function LandingHome() {
           </div>
         </section>
 
+        <section className="relative isolate overflow-hidden border-t border-white/10 bg-[#090a0c]">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_76%_52%,rgba(110,120,90,0.16),transparent_42%)]" />
+          <div className="relative mx-auto grid min-h-[680px] max-w-[1200px] grid-cols-1 items-center gap-4 px-6 py-16 sm:px-10 md:px-12 lg:min-h-[100svh] lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-16">
+            <motion.div
+              initial={{ opacity: 0, x: -28 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10 max-w-[500px] py-8 font-['Outfit'] lg:py-14"
+            >
+              <h2 className="text-7xl font-light leading-none text-[#f0ede8] sm:text-8xl">
+                Dad
+              </h2>
+              <p className="mt-10 max-w-[500px] text-base leading-8 text-[#d4d0ca] sm:text-lg sm:leading-9">
+                A stubborn, big-hearted carpenter who traded weekend projects for long shifts and unpaid bills. Now, shrunk into a world of his own making, he&apos;s learning that the best thing he ever built was his family.
+              </p>
+
+              <div className="mt-12">
+                <h3 className="mb-3 text-xs font-medium text-slate-400">Personality</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Protective', 'Hardworking', 'Warm-hearted'].map((trait) => (
+                    <span
+                      key={trait}
+                      className="inline-flex min-h-8 items-center rounded-full border border-white/20 px-3 font-mono text-[11px] text-[#e3dfd8]"
+                    >
+                      {trait}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="relative mx-auto flex w-full max-w-[660px] items-center justify-center lg:absolute lg:inset-y-0 lg:right-0 lg:w-[56%]"
+            >
+              <img
+                src="/dadPose-Photoroom.png"
+                alt="Dad, nhân vật người cha"
+                className="h-auto max-h-[760px] w-full object-contain object-center"
+              />
+            </motion.div>
+          </div>
+        </section>
+
+        <section className="relative isolate overflow-hidden border-t border-white/10 bg-[#090a0c]">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_28%_52%,rgba(110,120,90,0.16),transparent_42%)]" />
+          <div className="relative mx-auto grid min-h-[680px] max-w-[1440px] grid-cols-1 items-center gap-4 px-6 py-16 sm:px-10 md:px-12 lg:grid-cols-[1.1fr_0.9fr] lg:px-16 lg:py-20">
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="relative mx-auto flex w-full max-w-[620px] items-center justify-center lg:static"
+            >
+              <img
+                src="/childPose-Photoroom.png"
+                alt="Son, nhân vật cậu bé"
+                className="h-auto max-h-[680px] w-full object-contain object-center"
+              />
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 28 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10 max-w-xl py-8 font-['Outfit'] lg:py-14"
+            >
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300/75">
+                NHÂN VẬT · 02
+              </p>
+              <h2 className="text-6xl font-light leading-none text-[#f0ede8] sm:text-7xl md:text-8xl">
+                Son
+              </h2>
+              <p className="mt-8 max-w-lg text-sm leading-7 text-[#d4d0ca] sm:text-base sm:leading-8">
+                A cheerful boy who never goes anywhere without his headphones and a bright smile. For Son, every day is a brand-new song — he bounces along in his green sneakers, listens to the world around him, and turns little moments into happy melodies.
+              </p>
+
+              <div className="mt-10">
+                <h3 className="mb-3 text-[11px] font-medium text-slate-400">Personality</h3>
+                <div className="flex flex-wrap gap-2">
+                  {['Cheerful', 'Music lover', 'Energetic'].map((trait) => (
+                    <span
+                      key={trait}
+                      className="inline-flex min-h-8 items-center rounded-full border border-white/20 px-3 font-mono text-[11px] text-[#e3dfd8]"
+                    >
+                      {trait}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
         {/* ─────────── FOOTER ─────────── */}
         <footer className="relative bg-[#06080e] border-t border-white/10 text-slate-400 py-12 text-xs overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent" />
@@ -831,7 +762,7 @@ export default function LandingHome() {
             </button>
             <div className="text-center space-y-2">
               <div className="inline-flex items-center gap-2 mb-1">
-                <Heart className="w-6 h-6 text-amber-400" />
+                <img src="/logo.jpg" alt="Hold My Hand" className="h-9 w-9 rounded-lg object-cover" />
                 <span className="font-black text-xl text-white">Hold My Hand</span>
               </div>
               <h3 className="text-2xl font-bold text-white">

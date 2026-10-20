@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores'
-import { LayoutGrid, Users, Gamepad2, FileText, Mountain } from 'lucide-react'
+import { LayoutGrid, Users, Gamepad2, FileText } from 'lucide-react'
 import Sidebar from './Sidebar'
 import CosmicBackground from './CosmicBackground'
 import PageShell from './PageShell'
@@ -30,7 +30,7 @@ export default function Layout() {
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-amber-500/15 bg-[#0a0805]/80 px-4 backdrop-blur-md lg:hidden">
         <div className="flex items-center gap-2">
-          <Mountain className="h-5 w-5 text-amber-300" />
+          <img src="/logo.jpg" alt="Hold My Hand" className="h-8 w-8 rounded-lg object-cover" />
           <span className="text-xs font-extrabold tracking-wide text-white">
             HOLD MY HAND
           </span>
@@ -61,7 +61,6 @@ export default function Layout() {
         >
           <Sidebar
             brand={{ title: 'Hold My Hand', subtitle: 'Admin Console' }}
-            brandIcon={Mountain}
             navItems={navItems}
             user={user}
             onLogout={handleLogout}

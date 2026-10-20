@@ -1,16 +1,14 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { Gamepad2 } from 'lucide-react'
 
 interface GlassHeaderProps {
   onMenu: () => void
   authed: boolean
-  onJoin: () => void
   onLogin: () => void
 }
 
-export default function GlassHeader({ onMenu, authed, onJoin, onLogin }: GlassHeaderProps) {
+export default function GlassHeader({ onMenu, authed, onLogin }: GlassHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -55,17 +53,7 @@ export default function GlassHeader({ onMenu, authed, onJoin, onLogin }: GlassHe
             BETTER, TOGETHER.
           </span>
 
-          {authed ? (
-            <motion.button
-              onClick={onJoin}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-amber-400 text-slate-950 text-xs font-bold rounded-lg shadow-[0_0_24px_rgba(243,178,46,0.45)] hover:shadow-[0_0_36px_rgba(255,197,41,0.7)] transition-all"
-            >
-              <Gamepad2 className="w-4 h-4" />
-              VÀO SẢNH CHƠI
-            </motion.button>
-          ) : (
+          {!authed && (
             <button
               onClick={onLogin}
               className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all"

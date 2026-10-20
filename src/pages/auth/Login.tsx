@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores'
 import { notify } from '@/lib/toast'
-import { ArrowLeft, X, Heart } from 'lucide-react'
+import { ArrowLeft, X } from 'lucide-react'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -137,9 +137,7 @@ export default function Login() {
       <header className="relative z-20 w-full px-8 md:px-12 lg:px-16 py-6 flex items-center justify-between">
         {/* Top-Left Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-9 h-9 rounded-xl bg-yellow-400 flex items-center justify-center text-slate-950 shadow-lg shadow-yellow-400/20 group-hover:scale-105 transition-transform">
-            <Heart className="w-5 h-5 fill-slate-950" />
-          </div>
+          <img src="/logo.jpg" alt="Hold My Hand" className="h-10 w-10 rounded-lg object-cover shadow-lg shadow-yellow-400/20 transition-transform group-hover:scale-105" />
           <div className="flex flex-col">
             <span className="text-lg font-black tracking-tight text-white leading-none">
               HOLD MY HAND
