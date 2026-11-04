@@ -7,18 +7,14 @@ import {
   Gamepad2,
   ArrowRight,
   X,
-  Lock,
-  Mail,
-  Eye,
-  EyeOff,
   LogOut,
   Users,
   Tv,
   Zap,
   Sparkles,
 } from 'lucide-react'
-import { notify } from '@/lib/toast'
 import ParticleCanvas from '@/components/landing/ParticleCanvas'
+import GameCursor from '@/components/landing/GameCursor'
 import GlassHeader from '@/components/landing/GlassHeader'
 import Mounted from '@/components/landing/Mounted'
 
@@ -313,14 +309,9 @@ function FeatureCard({
 // ──────────────────────────────────────────────────────────────────────────
 export default function LandingHome() {
   const navigate = useNavigate()
-  const { isAuthenticated, user, logout, login, isLoading } = useAuthStore()
+  const { isAuthenticated, user, logout } = useAuthStore()
 
   const [menuOpen, setMenuOpen] = useState(false)
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
 
   const handleJoinClick = () => {
     if (isAuthenticated) navigate('/portal/lobby')
@@ -331,36 +322,17 @@ export default function LandingHome() {
     document.getElementById('worlds')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const handleModalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (authMode === 'login') {
-      try {
-        const loggedUser = await login({ username, password })
-        notify.success(
-          `Chào mừng ${loggedUser.displayName || loggedUser.username}!`,
-          'Đăng nhập thành công',
-        )
-        setShowAuthModal(false)
-        if (loggedUser.role === 'Admin') navigate('/admin')
-        else if (loggedUser.role === 'Moderator') navigate('/moderator')
-        else navigate('/portal/lobby')
-      } catch (err: any) {
-        notify.error('Tài khoản hoặc mật khẩu không chính xác!', 'Đăng nhập thất bại')
-      }
-    } else {
-      setShowAuthModal(false)
-      navigate('/register')
-    }
-  }
-
   return (
     <div
-      className="min-h-screen overflow-x-hidden bg-[#0B0E14] font-sans text-slate-100 selection:bg-amber-400 selection:text-slate-950"
+      className="min-h-screen overflow-x-hidden bg-[#0B0E14] font-sans text-slate-100 selection:bg-amber-400 selection:text-slate-950 cursor-game"
     >
+      <GameCursor enabled={true} />
+
       {/* Layer 1: Full-screen game banner */}
       <GlassHeader
         onMenu={() => setMenuOpen(!menuOpen)}
         authed={isAuthenticated}
+        onJoin={handleJoinClick}
         onLogin={() => navigate('/login')}
       />
 
@@ -405,16 +377,36 @@ export default function LandingHome() {
           </nav>
           <div className="w-full px-8 md:px-12 lg:px-16 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-white/10">
             {isAuthenticated && user ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-slate-300">
-                  Chào mừng, {user.displayName || user.username}
-                </span>
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-xs font-extrabold text-amber-950 ring-2 ring-amber-300/30">
+                    {(user.displayName || user.username || 'P').charAt(0).toUpperCase()}
+                  </span>
+                  <div className="flex flex-col leading-none">
+                    <span className="text-sm font-bold text-white">
+                      {user.displayName || user.username}
+                    </span>
+                    <span className="mt-1 text-[10px] font-bold uppercase tracking-widest text-amber-300/80">
+                      {user.role}
+                    </span>
+                  </div>
+                </div>
                 <button
                   onClick={() => {
-                    logout()
                     setMenuOpen(false)
+                    handleJoinClick()
                   }}
-                  className="px-4 py-2 bg-rose-500/20 text-rose-300 rounded-lg text-sm font-bold flex items-center gap-2"
+                  className="px-5 py-2.5 bg-amber-400 text-slate-950 rounded-lg text-sm font-bold flex items-center gap-2 shadow-[0_0_24px_rgba(243,178,46,0.4)]"
+                >
+                  <Gamepad2 className="w-4 h-4" /> VÀO SẢNH CHƠI
+                </button>
+                <button
+                  onClick={async () => {
+                    await logout()
+                    setMenuOpen(false)
+                    navigate('/login')
+                  }}
+                  className="px-4 py-2.5 bg-rose-500/20 border border-rose-500/30 text-rose-300 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors hover:bg-rose-500/30"
                 >
                   <LogOut className="w-4 h-4" /> Đăng xuất
                 </button>
@@ -453,6 +445,10 @@ export default function LandingHome() {
           {/* Background layers */}
           <div className="absolute inset-0 z-0">
             <HeroBackground image={HERO_BANNER.bgImage} />
+            {/* Particle canvas (snow + embers + shooting stars) */}
+            <ParticleCanvas snowCount={70} embersCount={18} />
+            {/* Cinematic vignette */}
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_45%,rgba(11,14,20,0.75)_100%)]" />
           </div>
 
           {/* Hero text */}
@@ -493,6 +489,20 @@ export default function LandingHome() {
 
               <Mounted delay={0.8}>
                 <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <motion.button
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={handleJoinClick}
+                    className="relative inline-flex items-center gap-3 overflow-hidden rounded-xl bg-amber-400 px-7 py-3.5 text-sm font-extrabold text-slate-950 shadow-[0_0_24px_rgba(243,178,46,0.45)] transition-shadow hover:shadow-[0_0_36px_rgba(255,197,41,0.7)]"
+                  >
+                    <span className="absolute inset-0 -z-10">
+                      <span className="absolute inset-0 rounded-xl bg-amber-400 animate-radar opacity-70" />
+                    </span>
+                    <Gamepad2 className="h-5 w-5 relative z-10" />
+                    <span className="relative z-10">
+                      {isAuthenticated ? 'VÀO SẢNH CHƠI' : 'BẮT ĐẦU HÀNH TRÌNH'}
+                    </span>
+                  </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.04 }}
                     whileTap={{ scale: 0.94 }}
@@ -628,7 +638,7 @@ export default function LandingHome() {
 
         <section className="relative isolate overflow-hidden border-t border-white/10 bg-[#090a0c]">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_76%_52%,rgba(110,120,90,0.16),transparent_42%)]" />
-          <div className="relative mx-auto grid min-h-[680px] max-w-[1200px] grid-cols-1 items-center gap-4 px-6 py-16 sm:px-10 md:px-12 lg:min-h-[100svh] lg:grid-cols-[0.9fr_1.1fr] lg:px-12 lg:py-16">
+            <div className="relative mx-auto grid min-h-[680px] max-w-[1440px] grid-cols-1 items-center gap-4 px-6 py-16 sm:px-10 md:px-12 lg:grid-cols-[0.9fr_1.1fr] lg:px-16 lg:py-20">
             <motion.div
               initial={{ opacity: 0, x: -28 }}
               whileInView={{ opacity: 1, x: 0 }}
@@ -636,7 +646,10 @@ export default function LandingHome() {
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="relative z-10 max-w-[500px] py-8 font-['Outfit'] lg:py-14"
             >
-              <h2 className="text-7xl font-light leading-none text-[#f0ede8] sm:text-8xl">
+              <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.24em] text-amber-300/75">
+                NHÂN VẬT · 01
+              </p>
+              <h2 className="text-6xl font-light leading-none text-[#f0ede8] sm:text-7xl md:text-8xl">
                 Dad
               </h2>
               <p className="mt-10 max-w-[500px] text-base leading-8 text-[#d4d0ca] sm:text-lg sm:leading-9">
@@ -663,12 +676,12 @@ export default function LandingHome() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-              className="relative mx-auto flex w-full max-w-[660px] items-center justify-center lg:absolute lg:inset-y-0 lg:right-0 lg:w-[56%]"
+              className="relative mx-auto flex w-full max-w-[660px] items-center justify-center lg:static"
             >
               <img
                 src="/dadPose-Photoroom.png"
                 alt="Dad, nhân vật người cha"
-                className="h-auto max-h-[760px] w-full object-contain object-center"
+                className="h-auto max-h-[680px] w-full object-contain object-center"
               />
             </motion.div>
           </div>
@@ -741,114 +754,6 @@ export default function LandingHome() {
           </div>
         </footer>
       </main>
-
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
-        >
-          <motion.div
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            className="relative w-full max-w-md bg-slate-900 border border-white/10 rounded-3xl p-8 shadow-2xl space-y-6"
-          >
-            <button
-              onClick={() => setShowAuthModal(false)}
-              className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white rounded-full bg-white/5 hover:bg-white/10"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center gap-2 mb-1">
-                <img src="/logo.jpg" alt="Hold My Hand" className="h-9 w-9 rounded-lg object-cover" />
-                <span className="font-black text-xl text-white">Hold My Hand</span>
-              </div>
-              <h3 className="text-2xl font-bold text-white">
-                {authMode === 'login' ? 'Đăng Nhập Portal' : 'Tạo Tài Khoản Mới'}
-              </h3>
-              <p className="text-xs text-slate-400">
-                {authMode === 'login'
-                  ? 'Đăng nhập để vào sảnh ghép đội và tiếp tục hành trình'
-                  : 'Tham gia thế giới game portal co-op ngay hôm nay'}
-              </p>
-            </div>
-            <form onSubmit={handleModalSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  Tên đăng nhập / Email
-                </label>
-                <div className="relative flex items-center bg-slate-950 border border-slate-800 rounded-xl">
-                  <Mail className="w-4 h-4 ml-3 text-slate-500" />
-                  <input
-                    type="text"
-                    required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Nhập username..."
-                    className="w-full px-3 py-3 bg-transparent text-white text-sm placeholder-slate-600 focus:outline-none"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">Mật khẩu</label>
-                <div className="relative flex items-center bg-slate-950 border border-slate-800 rounded-xl">
-                  <Lock className="w-4 h-4 ml-3 text-slate-500" />
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full px-3 py-3 bg-transparent text-white text-sm placeholder-slate-600 focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="mr-3 text-slate-500 hover:text-slate-300"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3.5 bg-amber-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-amber-400/20 hover:bg-amber-300 transition-all disabled:opacity-50"
-              >
-                {isLoading ? 'Đang xử lý...' : authMode === 'login' ? 'ĐĂNG NHẬP' : 'TIẾP TỤC ĐĂNG KÝ'}
-              </button>
-            </form>
-            <div className="text-center pt-2 text-xs text-slate-400">
-              {authMode === 'login' ? (
-                <span>
-                  Chưa có tài khoản?{' '}
-                  <button
-                    onClick={() => {
-                      setShowAuthModal(false)
-                      navigate('/register')
-                    }}
-                    className="font-bold text-amber-400 hover:underline"
-                  >
-                    Đăng ký tại đây
-                  </button>
-                </span>
-              ) : (
-                <span>
-                  Đã có tài khoản?{' '}
-                  <button
-                    onClick={() => setAuthMode('login')}
-                    className="font-bold text-amber-400 hover:underline"
-                  >
-                    Đăng nhập
-                  </button>
-                </span>
-              )}
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
     </div>
   )
 }

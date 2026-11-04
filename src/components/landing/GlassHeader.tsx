@@ -1,14 +1,16 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { Gamepad2 } from 'lucide-react'
 
 interface GlassHeaderProps {
   onMenu: () => void
   authed: boolean
+  onJoin: () => void
   onLogin: () => void
 }
 
-export default function GlassHeader({ onMenu, authed, onLogin }: GlassHeaderProps) {
+export default function GlassHeader({ onMenu, authed, onJoin, onLogin }: GlassHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -29,8 +31,8 @@ export default function GlassHeader({ onMenu, authed, onLogin }: GlassHeaderProp
           : 'bg-gradient-to-b from-black/80 via-black/40 to-transparent'
       }`}
     >
-      <div className="w-full px-8 md:px-12 lg:px-16 h-20 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 group">
+      <div className="w-full px-6 sm:px-8 md:px-12 lg:px-16 h-20 flex items-center justify-between gap-4">
+        <Link to="/" className="flex items-center gap-3 group shrink-0">
           <motion.img
             src="/logo.jpg"
             alt="Hold My Hand Logo"
@@ -39,7 +41,7 @@ export default function GlassHeader({ onMenu, authed, onLogin }: GlassHeaderProp
             className="h-10 sm:h-12 w-auto object-contain rounded-lg shadow-md"
           />
           <div className="flex flex-col">
-            <span className="text-xl font-black tracking-tight text-white leading-none">
+            <span className="text-base sm:text-xl font-black tracking-tight text-white leading-none">
               HOLD MY HAND
             </span>
             <span className="text-[9px] tracking-widest text-slate-400 font-bold uppercase mt-0.5">
@@ -48,12 +50,22 @@ export default function GlassHeader({ onMenu, authed, onLogin }: GlassHeaderProp
           </div>
         </Link>
 
-        <div className="flex items-center gap-6">
-          <span className="hidden md:inline-block text-xs font-bold tracking-[0.2em] text-amber-300/80 uppercase animate-pulse">
+        <div className="flex items-center gap-3 sm:gap-6">
+          <span className="hidden lg:inline-block text-xs font-bold tracking-[0.2em] text-amber-300/80 uppercase animate-pulse whitespace-nowrap">
             BETTER, TOGETHER.
           </span>
 
-          {!authed && (
+          {authed ? (
+            <motion.button
+              onClick={onJoin}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.94 }}
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-amber-400 text-slate-950 text-xs font-bold rounded-lg shadow-[0_0_24px_rgba(243,178,46,0.45)] hover:shadow-[0_0_36px_rgba(255,197,41,0.7)] transition-all"
+            >
+              <Gamepad2 className="w-4 h-4" />
+              VÀO SẢNH CHƠI
+            </motion.button>
+          ) : (
             <button
               onClick={onLogin}
               className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-white/10 border border-white/20 hover:bg-white/20 text-white text-xs font-bold rounded-lg transition-all"
@@ -66,7 +78,7 @@ export default function GlassHeader({ onMenu, authed, onLogin }: GlassHeaderProp
             onClick={onMenu}
             whileHover={{ rotate: 90 }}
             transition={{ type: 'spring', stiffness: 240, damping: 16 }}
-            className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white"
+            className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white shrink-0"
             aria-label="Toggle Menu"
           >
             <span className="block w-4 h-px bg-white" />

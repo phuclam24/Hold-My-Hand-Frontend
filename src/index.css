@@ -301,6 +301,18 @@
   animation: card-border-glow 2.4s ease-in-out infinite;
 }
 
+/* Ẩn con trỏ native khi dùng crosshair game (chỉ desktop) */
+.cursor-game,
+.cursor-game canvas,
+.cursor-game button,
+.cursor-game a,
+.cursor-game [role='button'],
+.cursor-game input,
+.cursor-game select,
+.cursor-game textarea {
+  cursor: none !important;
+}
+
 /* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 8px;

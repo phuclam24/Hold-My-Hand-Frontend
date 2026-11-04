@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { useAuthStore } from '@/stores'
 import { notify } from '@/lib/toast'
-import { ArrowLeft, X } from 'lucide-react'
+import { ArrowLeft, X, Eye, EyeOff, LogIn, Loader2 } from 'lucide-react'
+import ParticleCanvas from '@/components/landing/ParticleCanvas'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -11,85 +13,7 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-
-  // Floating Particles Canvas Ref
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
-
-  // Animated Floating Ember Particles
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let animationFrameId: number
-    let width = (canvas.width = window.innerWidth)
-    let height = (canvas.height = window.innerHeight)
-
-    const handleResize = () => {
-      if (!canvas) return
-      width = canvas.width = window.innerWidth
-      height = canvas.height = window.innerHeight
-    }
-    window.addEventListener('resize', handleResize)
-
-    // Particle pool
-    const numParticles = 45
-    const particles: Array<{
-      x: number
-      y: number
-      size: number
-      speedY: number
-      speedX: number
-      opacity: number
-      pulseSpeed: number
-    }> = []
-
-    for (let i = 0; i < numParticles; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        size: Math.random() * 2.5 + 1,
-        speedY: Math.random() * 0.6 + 0.2,
-        speedX: (Math.random() - 0.5) * 0.4,
-        opacity: Math.random() * 0.7 + 0.3,
-        pulseSpeed: Math.random() * 0.02 + 0.005,
-      })
-    }
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height)
-
-      particles.forEach((p) => {
-        p.y -= p.speedY
-        p.x += p.speedX
-        p.opacity += Math.sin(Date.now() * p.pulseSpeed) * 0.01
-
-        if (p.y < -10) {
-          p.y = height + 10
-          p.x = Math.random() * width
-        }
-        if (p.x < 0) p.x = width
-        if (p.x > width) p.x = 0
-
-        ctx.beginPath()
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(245, 158, 11, ${Math.max(0.1, Math.min(0.9, p.opacity))})`
-        ctx.shadowBlur = 8
-        ctx.shadowColor = '#f59e0b'
-        ctx.fill()
-      })
-
-      animationFrameId = requestAnimationFrame(render)
-    }
-
-    render()
-
-    return () => {
-      window.removeEventListener('resize', handleResize)
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [])
+  const [focused, setFocused] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -102,195 +26,247 @@ export default function Login() {
       else if (user.role === 'Moderator') navigate('/moderator')
       else navigate('/portal/lobby')
     } catch (err: any) {
-      const message = err.response?.status === 401
-        ? 'Tên đăng nhập hoặc mật khẩu không chính xác'
-        : err.response?.data?.message || 'Đăng nhập thất bại'
+      const message =
+        err.response?.status === 401
+          ? 'Tên đăng nhập hoặc mật khẩu không chính xác'
+          : err.response?.data?.message || 'Đăng nhập thất bại'
       notify.error(message, 'Đăng nhập thất bại')
     }
   }
 
-  return (
-    <div className="min-h-screen w-full relative overflow-hidden bg-[#06080e] text-slate-100 font-sans selection:bg-yellow-400 selection:text-slate-950 flex flex-col justify-between">
-      {/* Background Gothic Castle Artwork & Animated Zoom */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-45 animate-pulse"
-          style={{
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=2000&auto=format&fit=crop)',
-            animationDuration: '14s',
-          }}
-        />
-        {/* Dark Vignette & Mood Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#06080e] via-[#06080e]/50 to-[#06080e]/90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#06080e]/95 via-transparent to-[#06080e]/95" />
+  const fieldClass = (key: string) =>
+    `flex items-center gap-3 rounded-xl border bg-[#0b0e17]/90 px-4 transition-all duration-300 ${
+      focused === key
+        ? 'border-amber-400/80 shadow-[0_0_24px_-6px_rgba(243,178,46,0.55)]'
+        : 'border-slate-800 hover:border-slate-700'
+    }`
 
-        {/* Pulsing Warm Torch Glow Blobs */}
-        <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-amber-500/15 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute top-1/3 right-1/3 w-96 h-96 bg-orange-600/10 rounded-full blur-[140px] animate-pulse" style={{ animationDelay: '2s' }} />
+  return (
+    <div className="relative flex min-h-screen w-full flex-col justify-between overflow-hidden bg-[#06080e] text-slate-100 font-sans selection:bg-amber-400 selection:text-slate-950">
+      {/* ─── Background ─── */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <img
+          src="/banner_castle.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover object-center opacity-45"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#06080e] via-[#06080e]/60 to-[#06080e]/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#06080e]/95 via-[#06080e]/25 to-[#06080e]/95" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(6,8,14,0.85)_100%)]" />
+
+        {/* Pulsing warm torch glows */}
+        <div className="absolute top-1/2 left-1/4 h-72 w-72 rounded-full bg-amber-500/15 blur-[120px] animate-pulse" />
+        <div className="absolute top-1/3 right-1/3 h-96 w-96 rounded-full bg-orange-600/10 blur-[140px] animate-pulse" style={{ animationDelay: '2s' }} />
+
+        {/* Particle canvas */}
+        <div className="absolute inset-0 opacity-70">
+          <ParticleCanvas snowCount={50} embersCount={16} />
+        </div>
       </div>
 
-      {/* Floating Animated Ember Particle Canvas */}
-      <canvas ref={canvasRef} className="absolute inset-0 z-10 pointer-events-none" />
-
-      {/* Top Header Bar */}
-      <header className="relative z-20 w-full px-8 md:px-12 lg:px-16 py-6 flex items-center justify-between">
-        {/* Top-Left Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <img src="/logo.jpg" alt="Hold My Hand" className="h-10 w-10 rounded-lg object-cover shadow-lg shadow-yellow-400/20 transition-transform group-hover:scale-105" />
+      {/* ─── Header ─── */}
+      <header className="relative z-20 flex w-full items-center justify-between px-6 py-6 sm:px-8 md:px-12 lg:px-16">
+        <Link to="/" className="group flex items-center gap-3">
+          <img
+            src="/logo.jpg"
+            alt="Hold My Hand"
+            className="h-10 w-10 rounded-lg object-cover shadow-lg shadow-amber-500/20 transition-transform group-hover:scale-105"
+          />
           <div className="flex flex-col">
-            <span className="text-lg font-black tracking-tight text-white leading-none">
+            <span className="text-lg font-black leading-none tracking-tight text-white">
               HOLD MY HAND
             </span>
-            <span className="text-[9px] tracking-widest text-slate-400 font-bold uppercase mt-0.5">
+            <span className="mt-0.5 text-[9px] font-bold uppercase tracking-widest text-slate-400">
               GAME PORTAL CO-OP
             </span>
           </div>
         </Link>
 
-        {/* Top-Right Navigation Link */}
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+          className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-white/25 hover:bg-white/10 hover:text-white"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           Trang chủ
         </Link>
       </header>
 
-      {/* Main Content Split View matching screenshot */}
-      <main className="relative z-20 w-full px-8 md:px-12 lg:px-16 py-8 flex-1 flex flex-col md:flex-row items-center justify-between gap-12">
-        {/* Left Side Showcase Text */}
-        <div className="max-w-xl space-y-6">
-          {/* Tagline Badge */}
+      {/* ─── Main ─── */}
+      <main className="relative z-20 flex w-full flex-1 flex-col items-center justify-center px-6 py-10 md:flex-row md:gap-16 md:px-12 lg:px-16">
+        {/* Left showcase */}
+        <motion.div
+          initial={{ opacity: 0, x: -32 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-xl space-y-6"
+        >
           <div className="inline-flex items-center gap-3">
-            <span className="h-0.5 w-6 bg-yellow-400 rounded-full" />
-            <span className="text-[11px] font-bold text-yellow-400 tracking-[0.2em] uppercase font-sans">
+            <span className="h-0.5 w-6 rounded-full bg-amber-400 shadow-[0_0_10px_rgba(255,197,41,0.8)]" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-400">
               BETTER, TOGETHER.
             </span>
           </div>
 
-          {/* Main Huge Title */}
-          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[96px] font-black text-white tracking-tight leading-[1.04] font-sans antialiased">
+          <h1 className="text-5xl font-black leading-[1.04] tracking-tight text-white antialiased sm:text-6xl md:text-7xl lg:text-[86px]">
             HOLD
             <br />
-            MY HAND<span className="text-yellow-400 font-black">.</span>
+            MY HAND<span className="text-amber-400">.</span>
           </h1>
 
-          {/* Yellow Accent Line */}
-          <div className="h-1 w-16 bg-yellow-400 rounded-full" />
+          <div className="h-1 w-16 rounded-full bg-amber-400" />
 
-          {/* Subtitle */}
-          <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-normal max-w-md">
+          <p className="max-w-md text-base leading-relaxed text-slate-300 sm:text-lg">
             Một người bạn. Một cuộc phiêu lưu.
             <br />
             Vô vàn thế giới đang chờ bạn.
           </p>
-        </div>
 
-        {/* Right Side Glassmorphic Floating Entry Point Box */}
-        <div className="w-full max-w-[420px] bg-black/75 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 md:p-10 shadow-2xl relative">
-          {/* Header inside Entry Box */}
+          {/* Feature chips */}
+          <div className="flex flex-wrap gap-2 pt-2">
+            {['Split-Screen', 'Tethering', 'Minigame', "Friend's Pass"].map((f) => (
+              <span
+                key={f}
+                className="inline-flex min-h-8 items-center rounded-full border border-white/15 bg-white/[0.04] px-3 font-mono text-[11px] text-slate-300"
+              >
+                {f}
+              </span>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Right form card */}
+        <motion.div
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="relative mt-10 w-full max-w-[420px] rounded-2xl border border-white/10 bg-black/70 p-8 shadow-2xl backdrop-blur-2xl md:mt-0 md:p-10"
+        >
+          {/* Card header */}
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-[11px] font-bold text-yellow-400 uppercase tracking-widest block">
+              <span className="block text-[11px] font-bold uppercase tracking-widest text-amber-400">
                 PORTAL ACCESS
               </span>
-              <span className="font-mono text-[10px] text-slate-500 block mt-1">
+              <span className="mt-1 block font-mono text-[10px] text-slate-500">
                 22 : HMH-092-01
               </span>
             </div>
             <button
               onClick={() => navigate('/')}
-              className="w-8 h-8 rounded-md border border-white/10 bg-white/5 hover:bg-white/15 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-              aria-label="Close"
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-white/10 bg-white/5 text-slate-400 transition-colors hover:bg-white/15 hover:text-white"
+              aria-label="Đóng"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Title inside Box */}
-          <h2 className="text-4xl md:text-[44px] font-black text-white tracking-tight mt-8 mb-8 leading-none font-sans">
+          <h2 className="mb-8 mt-8 font-sans text-4xl font-black leading-none tracking-tight text-white md:text-[44px]">
             ENTRY
             <br />
             POINT
           </h2>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-lg text-xs font-medium text-center">
-                {error}
-              </div>
-            )}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-center text-xs font-medium text-rose-300"
+            >
+              {error}
+            </motion.div>
+          )}
 
-            {/* Field 1: Username / Email */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Username */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-slate-300">
                 TÊN ĐĂNG NHẬP / EMAIL
               </label>
-              <input
-                type="text"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="USER_LOGIN_TOKEN"
-                className="w-full px-4 py-3.5 bg-[#0b0e17]/90 border border-slate-800 rounded-lg text-sm text-white placeholder:text-slate-600 font-mono focus:border-yellow-400/80 focus:outline-none transition-colors"
-              />
+              <div className={fieldClass('email')}>
+                <input
+                  type="text"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setFocused('email')}
+                  onBlur={() => setFocused(null)}
+                  placeholder="USER_LOGIN_TOKEN"
+                  autoComplete="username"
+                  className="w-full bg-transparent py-3.5 font-mono text-sm text-white placeholder:text-slate-600 focus:outline-none"
+                />
+              </div>
             </div>
 
-            {/* Field 2: Password */}
+            {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
-                  KHÓA BẢO MẬT
-                </label>
-              </div>
-              <div className="relative flex items-center">
+              <label className="mb-2 block text-[11px] font-bold uppercase tracking-wider text-slate-300">
+                KHÓA BẢO MẬT
+              </label>
+              <div className={fieldClass('password')}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setFocused('password')}
+                  onBlur={() => setFocused(null)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3.5 bg-[#0b0e17]/90 border border-slate-800 rounded-lg text-sm text-white placeholder:text-slate-600 font-mono focus:border-yellow-400/80 focus:outline-none transition-colors pr-16"
+                  autoComplete="current-password"
+                  className="w-full bg-transparent py-3.5 font-mono text-sm text-white placeholder:text-slate-600 focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 text-xs font-bold text-slate-400 hover:text-white tracking-wider"
+                  aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  className="text-slate-400 transition-colors hover:text-amber-300"
                 >
-                  {showPassword ? 'ẨN' : 'HIỆN'}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 bg-white hover:bg-slate-100 text-slate-950 font-black text-sm tracking-wider uppercase rounded-lg shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-amber-400 py-4 text-sm font-black uppercase tracking-wider text-slate-950 shadow-xl shadow-amber-500/20 transition-all hover:scale-[1.01] hover:bg-amber-300 hover:shadow-amber-500/35 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isLoading ? 'ĐANG XÁC NHẬN...' : 'XÁC NHẬN TRUY CẬP'}
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  ĐANG XÁC NHẬN...
+                </>
+              ) : (
+                <>
+                  <LogIn className="h-5 w-5" />
+                  XÁC NHẬN TRUY CẬP
+                </>
+              )}
             </button>
           </form>
 
-          {/* Bottom Actions inside Box */}
-          <div className="flex items-center pt-6 mt-6 border-t border-white/10 text-xs">
+          <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-6 text-xs">
             <Link
               to="/register"
-              className="font-bold text-slate-400 hover:text-white uppercase tracking-wider transition-colors"
+              className="font-bold uppercase tracking-wider text-slate-400 transition-colors hover:text-amber-300"
             >
               TẠO TÀI KHOẢN
             </Link>
+            <span className="text-slate-600">HOẶC</span>
+            <Link
+              to="/"
+              className="font-bold uppercase tracking-wider text-slate-400 transition-colors hover:text-amber-300"
+            >
+              THAM QUAN TRANG CHỦ
+            </Link>
           </div>
-        </div>
+        </motion.div>
       </main>
 
-      {/* Bottom Status Bar */}
-      <footer className="relative z-20 w-full px-8 md:px-12 lg:px-16 py-6 border-t border-white/5 text-[11px] font-bold text-slate-500 uppercase tracking-widest flex flex-col sm:flex-row items-center justify-between gap-4">
+      {/* ─── Footer ─── */}
+      <footer className="relative z-20 flex w-full flex-col items-center justify-between gap-4 border-t border-white/5 px-6 py-6 text-[11px] font-bold uppercase tracking-widest text-slate-500 sm:flex-row sm:px-8 md:px-12 lg:px-16">
         <span>HOLD MY HAND · GAME PORTAL CO-OP</span>
-        <span>HAI NGƯỜI. MỘT HÀNH TRÌNH.</span>
+        <span className="text-slate-600">HAI NGƯỜI. MỘT HÀNH TRÌNH.</span>
       </footer>
     </div>
   )
